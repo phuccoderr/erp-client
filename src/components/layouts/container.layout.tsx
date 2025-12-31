@@ -8,10 +8,7 @@ export const Container = ({
   ...props
 }: ContainerProps) => {
   return (
-    <div
-      className={cn("w-full mx-auto px-4 sm:px-6 lg:px-8", className)}
-      {...props}
-    >
+    <div className={cn("w-full", className)} {...props}>
       {children}
     </div>
   );

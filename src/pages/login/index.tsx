@@ -4,7 +4,7 @@ import FormLogin from "./components/form-login.component";
 import { useThemeStore } from "@stores";
 import { useEffect } from "react";
 
-const Login = () => {
+const LoginPage = () => {
   const { theme, setTheme } = useThemeStore();
 
   useEffect(() => {
@@ -25,4 +25,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

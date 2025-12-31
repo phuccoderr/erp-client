@@ -2,12 +2,25 @@ import { createBrowserRouter } from "react-router-dom";
 import { authRouter } from "./auth.router";
 import { systemRouter } from "./system.router";
 import { ProtectedRouter } from "@components/providers";
+import HomePage from "@pages/home";
+import LayoutPage from "@pages/layout";
+import { ROUTE_CONST } from "@constants";
 
 const router = createBrowserRouter([
   ...authRouter,
   {
-    element: <ProtectedRouter />,
-    children: [...systemRouter],
+    element: (
+      <ProtectedRouter>
+        <LayoutPage />
+      </ProtectedRouter>
+    ),
+    children: [
+      {
+        path: ROUTE_CONST.INDEX,
+        element: <HomePage />,
+      },
+      ...systemRouter,
+    ],
   },
 ]);
 

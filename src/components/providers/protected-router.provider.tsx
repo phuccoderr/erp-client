@@ -1,14 +1,15 @@
-import { UserApi } from "@apis";
-import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { ROUTE_CONST } from "@constants";
+import { useQueryUserGetMe } from "@hooks/user";
+import { useEffect, type PropsWithChildren } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const ProtectedRouter = async () => {
-  const me = await UserApi.getMe();
+export const ProtectedRouter = ({ children }: PropsWithChildren) => {
+  const { isError } = useQueryUserGetMe();
   const navigate = useNavigate();
   useEffect(() => {
-    if (!me) {
-      navigate("/login");
+    if (isError) {
+      navigate(ROUTE_CONST.LOGIN);
     }
-  }, [me]);
-  return <Outlet />;
+  }, [isError]);
+  return children;
 };

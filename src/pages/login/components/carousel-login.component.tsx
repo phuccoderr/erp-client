@@ -1,5 +1,5 @@
 import { Carousel, CarouselContent, CarouselItem, Image } from "@components/ui";
-import imgHrm from "@assets/login/login-page-hrm.png";
+import imgHrm from "@assets/images/login-page/login-page-hrm.png";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 

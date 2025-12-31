@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./dialog";
 import { Skeleton } from "./skeleton";
+import { cn } from "@lib";
 
 interface ImageProps {
   src: string;
@@ -16,9 +17,7 @@ interface ImageProps {
 export const Image = ({
   src,
   alt,
-  width,
-  height,
-  className = "",
+  className,
   placeholder = "skeleton",
   zoomable = false,
 }: ImageProps) => {
@@ -28,7 +27,7 @@ export const Image = ({
   // const hasAvif = src.replace(/\.\w+$/, ".avif");
 
   const imageContent = (
-    <div className="relative h-full overflow-hidden rounded-lg">
+    <div className={cn("relative overflow-hidden", className)}>
       {placeholder === "skeleton" && isLoading && (
         <Skeleton className="absolute inset-0 h-full w-full" />
       )}
@@ -36,13 +35,11 @@ export const Image = ({
       <img
         src={src}
         alt={alt}
-        width={width}
-        height={height}
         loading="lazy"
         decoding="async"
-        className={`object-cover w-full h-full transition-opacity duration-500 ${
+        className={`absolute inset-0 object-cover w-full h-full transition-opacity duration-500 ${
           isLoading ? "opacity-0" : "opacity-100"
-        } ${className}`}
+        }`}
         onLoad={() => setIsLoading(false)}
         onError={() => setIsLoading(false)} // tránh treo loading nếu lỗi
       />

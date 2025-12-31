@@ -1,7 +1,8 @@
 import { UserApi } from "@apis";
 import { useQuery } from "@tanstack/react-query";
 import type { ResponseERP } from "@types";
-import { TANSTACK_KEY_CONST } from "@constants";
+import { COOKIE_CONST, TANSTACK_KEY_CONST } from "@constants";
+import { CookieStorageUtil } from "@utils";
 
 const useQueryUserGetMe = () => {
   return useQuery<ResponseERP<any>>({
@@ -9,6 +10,7 @@ const useQueryUserGetMe = () => {
     queryFn: async () => {
       return (await UserApi.getMe()).data;
     },
+    enabled: !CookieStorageUtil.get(COOKIE_CONST.SESSION),
   });
 };
 

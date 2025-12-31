@@ -1,19 +1,47 @@
-import { BellDotIcon } from "lucide-react";
-import { Button } from "@components/ui";
+import { BellDotIcon, Menu, MoonStar, Sun, User } from "lucide-react";
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  useSidebar,
+} from "@components/ui";
+import { useThemeStore } from "@stores";
 
-const Header = () => {
+export const Header = () => {
+  const { toggleSidebar } = useSidebar();
+  const { theme, toggleTheme } = useThemeStore();
+
   return (
-    <div className="flex justify-end px-6 py-2 items-center">
+    <div className="flex justify-between p-6 py-2 items-center">
+      <Button
+        className="justify-start"
+        onClick={toggleSidebar}
+        variant="ghost"
+        size="icon-sm"
+      >
+        <Menu />
+      </Button>
       <div className="flex gap-2">
-        <Button size="icon-lg" variant="outline" className="">
-          <BellDotIcon />
+        <Button onClick={toggleTheme} size="icon" variant="outline">
+          {theme === "light" ? <Sun /> : <MoonStar />}
         </Button>
-        <Button size="icon-lg" variant="outline">
-          add
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button size="icon" variant="outline">
+              <User />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="bottom" align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 };
-
-export default Header;

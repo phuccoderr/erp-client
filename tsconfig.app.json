@@ -29,7 +29,9 @@
     "paths": {
       "@components/*": ["./src/components/*"],
       "@constants": ["./src/constants"],
+      "@assets/*": ["./src/assets/*"],
       "@hooks/*": ["./src/hooks/*"],
+      "@hooks": ["./src/hooks"],
       "@stores": ["./src/stores"],
       "@types/*": ["./src/types/*"],
       "@pages/*": ["./src/pages/*"],

@@ -11,7 +11,7 @@ import { queryClient } from "@utils";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools buttonPosition="top-right" />
+      <ReactQueryDevtools buttonPosition="bottom-right" />
       <ThemeProvider>
         <RouterProvider router={router} />
       </ThemeProvider>

@@ -7,6 +7,7 @@ type ThemeType = "light" | "dark";
 type Store = {
   theme: ThemeType;
   setTheme: (theme: ThemeType) => void;
+  toggleTheme: () => void;
 };
 
 export const useThemeStore = create<Store>()(
@@ -15,6 +16,11 @@ export const useThemeStore = create<Store>()(
       theme: "light",
       setTheme: (theme: ThemeType) => {
         set({ theme });
+      },
+      toggleTheme: () => {
+        set((state) => ({
+          theme: state.theme === "light" ? "dark" : "light",
+        }));
       },
     }),
     {
