@@ -5,9 +5,12 @@ import { ProtectedRouter } from "@components/providers";
 import HomePage from "@pages/home";
 import LayoutPage from "@pages/layout";
 import { ROUTE_CONST } from "@constants";
+import { rbacRouter } from "./rbac.router";
 
 const router = createBrowserRouter([
+  // Public
   ...authRouter,
+  // Private
   {
     element: (
       <ProtectedRouter>
@@ -20,6 +23,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       ...systemRouter,
+      ...rbacRouter,
     ],
   },
 ]);

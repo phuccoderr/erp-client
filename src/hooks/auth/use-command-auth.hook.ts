@@ -11,7 +11,12 @@ const useCommandAuthLogin = () => {
       return AuthApi.login(body);
     },
     onSuccess: (data: ResponseERP<string>) => {
-      CookieStorageUtil.set(COOKIE_CONST.SESSION, data.data ?? "");
+      if (data.data) {
+        CookieStorageUtil.set(COOKIE_CONST.SESSION, data.data, {
+          "max-age": 86400,
+          sameSite: "lax",
+        });
+      }
     },
   });
 };

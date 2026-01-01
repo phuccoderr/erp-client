@@ -5,4 +5,7 @@ export const ROUTE_CONST = {
   SYSTEM: {
     LANG: "/system/langs",
   },
+  RBAC: {
+    PERMISSON: "/rbac/permissions",
+  },
 };

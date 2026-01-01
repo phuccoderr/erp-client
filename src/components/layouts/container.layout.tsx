@@ -8,7 +8,7 @@ export const Container = ({
   ...props
 }: ContainerProps) => {
   return (
-    <div className={cn("w-full", className)} {...props}>
+    <div className={cn("w-full min-h-screen", className)} {...props}>
       {children}
     </div>
   );
