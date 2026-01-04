@@ -10,7 +10,14 @@ import { createContext, type ReactNode } from "react";
 import { Typography } from "./typography";
 
 import { Button } from "./button";
-import { ArrowDownUp, FunnelPlus, Grid2x2, SearchIcon } from "lucide-react";
+import {
+  ArrowDownUp,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  FunnelPlus,
+  Grid2x2,
+  SearchIcon,
+} from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
 import {
   InputDate,
@@ -27,6 +34,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  ButtonGroup,
+  Input,
 } from "@components/ui";
 
 const TanstackTableContext = createContext(null);
@@ -57,6 +66,14 @@ function TanstackTableHeader({ children, title }: HeaderProps) {
     </div>
   );
 }
+
+interface ContentProps {
+  children: ReactNode;
+}
+function TanstackTableContent({ children }: ContentProps) {
+  return <div className="border rounded-sm">{children}</div>;
+}
+
 interface FilterProps {}
 function TanstackTableFilter({}: FilterProps) {
   return (
@@ -97,13 +114,6 @@ function TanstackTableFilter({}: FilterProps) {
       </div>
     </div>
   );
-}
-
-interface ContentProps {
-  children: ReactNode;
-}
-function TanstackTableContent({ children }: ContentProps) {
-  return <div className="border rounded-sm">{children}</div>;
 }
 
 interface DataProps<TData, TValue> {
@@ -179,10 +189,52 @@ function TanstackTableData<TData, TValue>({
   );
 }
 
+function TanstackTableFooter() {
+  return (
+    <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
+      <Typography className="text-xs flex-1">
+        Showing 8 of 25 agreement
+      </Typography>
+      <ButtonGroup className="flex-1 flex justify-center">
+        <ButtonGroup>
+          <Button variant="outline" size="icon-xs" aria-label="Previous">
+            <ArrowLeftIcon className="size-3" />
+          </Button>
+          <Button variant="outline" size="xs">
+            1
+          </Button>
+          <Button variant="outline" size="xs">
+            2
+          </Button>
+          <Button variant="outline" size="xs">
+            3
+          </Button>
+          <Button variant="outline" size="xs">
+            4
+          </Button>
+          <Button variant="outline" size="xs">
+            5
+          </Button>
+          <Button variant="outline" size="icon-xs" aria-label="Next">
+            <ArrowRightIcon className="size-3" />
+          </Button>
+        </ButtonGroup>
+      </ButtonGroup>
+      <div className="flex-1">
+        <div className="flex justify-end gap-2 items-center">
+          <Typography className="text-xs">Go to Page</Typography>
+          <Input className="w-12 rounded-sm h-6 p-2" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export {
   TanstackTable,
   TanstackTableHeader,
   TanstackTableContent,
   TanstackTableFilter,
   TanstackTableData,
+  TanstackTableFooter,
 };

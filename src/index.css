@@ -28,6 +28,7 @@
   --color-primary-foreground: var(--primary-foreground);
   /* Secondary */
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
   --color-secondary-foreground: var(--secondary-foreground);
   /* Mute and accent */
   --color-muted: var(--muted);
@@ -58,6 +59,8 @@
   /* Table */
   --color-table-header: var(--table-header-bg);
   --color-table-header-foreground: var(--table-header-foreground);
+  --color-tooltip-bg: var(--tooltip-bg);
+  --color-tooltip-foreground: var(--tooltip-foreground);
 }
 
 :root {
@@ -81,6 +84,7 @@
 
   /* Secondary & Muted */
   --secondary: oklch(0.97 0 0);
+  --secondary-hover: oklch(0.86 0 0);
   --secondary-foreground: #515b73;
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -117,9 +121,13 @@
   --table-foreground: var(--card-foreground);
   --table-border: var(--border);
   --table-header-bg: var(--muted);
-  --table-header-foreground: #202c4b;
+  --table-header-foreground: #949494;
   --table-row-hover: var(--muted);
   --table-striped: oklch(0.985 0 0 / 0.03);
+
+  /* Tooltip */
+  --tooltip-bg: #ebebeb;
+  --tooltip-foreground: var(--foreground);
 }
 
 .dark {
@@ -136,6 +144,7 @@
   --primary-foreground: oklch(0.205 0 0);
 
   --secondary: oklch(0.269 0 0);
+  --secondary-hover: oklch(0.86 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
@@ -170,6 +179,9 @@
   --table-header-foreground: var(--muted-foreground);
   --table-row-hover: var(--accent);
   --table-striped: oklch(1 0 0 / 0.05);
+
+  --tooltip-bg: var(--foreground);
+  --tooltip-foreground: var(--background);
 }
 
 @layer base {

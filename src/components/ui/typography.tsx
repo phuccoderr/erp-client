@@ -83,5 +83,5 @@ export const Typography = ({
     );
   }
 
-  return <p className={cn(basedClassName, className)}>{children}</p>;
+  return <p className={cn(basedClassName, "text-xs", className)}>{children}</p>;
 };

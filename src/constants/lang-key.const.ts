@@ -15,4 +15,6 @@ export const LANG_KEY_CONST = {
   },
   TOOLTIP_FILTER: "tooltip_filter",
   TOOLTIP_SORT: "tooltip_sort",
+  TOOLTIP_INPUT_DATE: "tooltip_input_date",
+  TOOLTIP_INPUT_DATE_RANGE: "tooltip_input_date_range",
 };

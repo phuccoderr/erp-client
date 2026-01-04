@@ -4,6 +4,7 @@ import {
   TanstackTableContent,
   TanstackTableData,
   TanstackTableFilter,
+  TanstackTableFooter,
   TanstackTableHeader,
   Typography,
 } from "@components/ui";
@@ -38,6 +39,7 @@ const PermissionPage = () => {
       <TanstackTableContent>
         <TanstackTableFilter />
         <TanstackTableData data={data} columns={columns} />
+        <TanstackTableFooter />
       </TanstackTableContent>
     </TanstackTable>
   );

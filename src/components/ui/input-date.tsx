@@ -10,7 +10,9 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Typography,
 } from "@components/ui";
+import { LANG_KEY_CONST } from "@constants";
 import { DateUtil } from "@utils";
 import { format } from "date-fns";
 import { CalendarSearch } from "lucide-react";
@@ -18,43 +20,76 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface InputDateProps {
   date?: Date | undefined;
-  onChange?: (date?: Date) => Date;
+  onChange?: (date?: Date | undefined) => void;
 }
 
-const InputDate = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [inputValue, setInputValue] = useState(
-    format(new Date(), "dd/MM/yyyy")
-  );
-  const hasError = !date;
-
-  const handleInputChange = useCallback((value: string) => {
-    const clean = value.replace(/[^0-9]/g, "").slice(0, 8);
-
-    setInputValue(
-      clean.length === 8
-        ? `${clean.slice(0, 2)}/${clean.slice(2, 4)}/${clean.slice(4)}`
-        : clean
-    );
-
-    const parsed = DateUtil.parseInputDDMMYYYY(clean);
-
-    setDate(parsed);
-  }, []);
-  const calendarMonth = useMemo(() => {
-    if (!date) return new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1);
-  }, [date]);
+const InputDate = ({ date, onChange }: InputDateProps) => {
+  const [stateDate, setStateDate] = useState<Date | undefined>(new Date());
 
   useEffect(() => {
     if (date) {
-      setInputValue(DateUtil.formatDate(date));
+      setStateDate(date);
     }
   }, [date]);
+
+  useEffect(() => {
+    if (stateDate) {
+      setInputValue(DateUtil.formatDate(stateDate));
+    }
+  }, [stateDate]);
+
+  const [inputValue, setInputValue] = useState(
+    format(new Date(), "dd/MM/yyyy")
+  );
+  const hasError = !stateDate;
+
+  const handleInputChange = useCallback(
+    (value: string) => {
+      const clean = value.replace(/[^0-9]/g, "").slice(0, 8);
+
+      setInputValue(
+        clean.length === 8
+          ? `${clean.slice(0, 2)}/${clean.slice(2, 4)}/${clean.slice(4)}`
+          : clean
+      );
+
+      const parsed = DateUtil.parseInputDDMMYYYY(clean);
+
+      setStateDate(parsed);
+
+      onChange?.(parsed);
+    },
+    [onChange]
+  );
+
+  const handleCalendarSelect = (selected: Date | undefined) => {
+    setStateDate(selected);
+    onChange?.(selected);
+  };
+
+  const handleMonthChange = (month: Date) => {
+    if (stateDate) {
+      const newDate = new Date(
+        month.getFullYear(),
+        month.getMonth(),
+        stateDate.getDate()
+      );
+      setStateDate(newDate);
+      onChange?.(newDate);
+    }
+  };
+
+  const calendarMonth = useMemo(() => {
+    if (!stateDate) return new Date();
+    return new Date(stateDate.getFullYear(), stateDate.getMonth(), 1);
+  }, [stateDate]);
+
   return (
     <Tooltip open={hasError}>
       <TooltipTrigger>
-        <InputGroup className={hasError ? "border-destructive border" : ""}>
+        <InputGroup
+          className={`w-36 ${hasError && "border-destructive border"}`}
+        >
           <InputGroupInput
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}
@@ -75,26 +110,17 @@ const InputDate = () => {
                 mode="single"
                 captionLayout="dropdown"
                 month={calendarMonth}
-                onMonthChange={(month: Date) => {
-                  if (date) {
-                    const newDate = new Date(
-                      month.getFullYear(),
-                      month.getMonth(),
-                      date.getDate()
-                    );
-                    setDate(newDate);
-                  }
-                }}
-                selected={date}
-                onSelect={(selected: Date | undefined) => {
-                  if (selected) setDate(selected);
-                }}
+                onMonthChange={handleMonthChange}
+                selected={stateDate}
+                onSelect={handleCalendarSelect}
               />
             </PopoverContent>
           </Popover>
         </InputGroup>
       </TooltipTrigger>
-      <TooltipContent>day/month/year</TooltipContent>
+      <TooltipContent>
+        <Typography>{LANG_KEY_CONST.TOOLTIP_INPUT_DATE}</Typography>
+      </TooltipContent>
     </Tooltip>
   );
 };
