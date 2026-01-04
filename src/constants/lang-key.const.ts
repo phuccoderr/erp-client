@@ -9,4 +9,10 @@ export const LANG_KEY_CONST = {
     LOGIN_BTN_LOGIN: "auth_login_btn_login",
     LOGIN_CKCBOX_REMEMBER: "auth_login_ckcbox_remember",
   },
+  EXPORT: "export",
+  PERMISSION: {
+    BTN_ADD: "permission_btn_add",
+  },
+  TOOLTIP_FILTER: "tooltip_filter",
+  TOOLTIP_SORT: "tooltip_sort",
 };

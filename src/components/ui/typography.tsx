@@ -83,9 +83,5 @@ export const Typography = ({
     );
   }
 
-  return (
-    <p className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}>
-      {children}
-    </p>
-  );
+  return <p className={cn(basedClassName, className)}>{children}</p>;
 };

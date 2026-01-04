@@ -62,6 +62,7 @@ function Input<TFieldValues extends FieldValues>({
       type={type}
       data-slot="input"
       className={cn(basedClassName, className)}
+      placeholder={placeholder}
       {...props}
     />
   );

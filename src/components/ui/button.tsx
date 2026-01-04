@@ -5,7 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@lib";
 
 const buttonVariants = cva(
-  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "cursor-pointer " + // Con trỏ chuột thành hình bàn tay khi hover (cho biết có thể click)
+    "inline-flex items-center justify-center " + // Sử dụng flex để căn giữa nội dung theo cả chiều ngang và dọc
+    "gap-2 " + // Khoảng cách 0.5rem (8px) giữa các phần tử con (text và icon)
+    "whitespace-nowrap " + // Ngăn text xuống dòng, giữ button trên một hàng
+    "rounded-md " + // Bo góc trung bình (medium border radius)
+    "text-sm font-medium " + // Kích thước chữ nhỏ (14px) và độ đậm medium
+    "transition-all " + // Hiệu ứng mượt mà cho mọi thay đổi (hover, focus,...)
+    "disabled:pointer-events-none " + // Khi disabled: không nhận sự kiện click chuột
+    "disabled:opacity-50 " + // Khi disabled: làm mờ 50%
+    "[&_svg]:pointer-events-none " + // Các icon SVG bên trong không nhận sự kiện chuột (tránh conflict)
+    "[&_svg:not([class*='size-'])]:size-4 " + // Nếu icon SVG không có class chứa "size-" (ví dụ size-5), thì tự động set kích thước 4 (16px)
+    "shrink-0 [&_svg]:shrink-0 " + // Button và icon không bị co lại khi flex shrink
+    "outline-none " + // Loại bỏ viền outline mặc định khi focus (sẽ thay bằng focus-visible custom)
+    "focus-visible:border-ring " + // Khi focus bằng bàn phím: viền màu --ring (thường là primary mờ)
+    "focus-visible:ring-ring/50 " + // Khi focus bằng bàn phím: thêm ring (vòng ngoài) màu --ring với độ trong suốt 50%
+    "focus-visible:ring-[3px] " + // Độ dày của ring là 3px
+    "aria-invalid:ring-destructive/20 " + // Nếu có aria-invalid (lỗi form): thêm ring màu destructive (đỏ) trong suốt 20% ở light mode
+    "dark:aria-invalid:ring-destructive/40 " + // Ở dark mode: ring destructive trong suốt 40% (đậm hơn một chút)
+    "aria-invalid:border-destructive", // Nếu lỗi: viền button chuyển thành màu destructive (đỏ),
   {
     variants: {
       variant: {

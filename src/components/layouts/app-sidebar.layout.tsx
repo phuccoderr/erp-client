@@ -23,8 +23,8 @@ const items = [
     icon: Home,
   },
   {
-    title: "Inbox",
-    url: "#",
+    title: "Permission",
+    url: "/rbac/permissions",
     icon: Inbox,
   },
   {

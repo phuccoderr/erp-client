@@ -6,16 +6,28 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
+import { createContext, type ReactNode } from "react";
+import { Typography } from "./typography";
+
+import { Button } from "./button";
+import { ArrowDownUp, FunnelPlus, Grid2x2, SearchIcon } from "lucide-react";
+import { LANG_KEY_CONST } from "@constants";
 import {
+  InputDate,
+  InputDateRange,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "./table";
-import { createContext, type ReactNode } from "react";
-import { Typography } from "./typography";
+} from "@components/ui";
 
 const TanstackTableContext = createContext(null);
 
@@ -45,15 +57,63 @@ function TanstackTableHeader({ children, title }: HeaderProps) {
     </div>
   );
 }
+interface FilterProps {}
+function TanstackTableFilter({}: FilterProps) {
+  return (
+    <div className="border-b flex justify-between items-center py-2 px-4">
+      <InputGroup variant="outline" className="w-[20%] p-0 shadow-none">
+        <InputGroupInput placeholder="Search..." />
+        <InputGroupAddon className="p-0">
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
+      <div className="flex gap-2 items-center">
+        <InputDate />
+        <InputDateRange />
 
-interface ContentProps<TData, TValue> {
+        <Button variant="outline">
+          manage column <Grid2x2 />
+        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" variant="outline">
+              <FunnelPlus />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" variant="outline">
+              <ArrowDownUp />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <Typography>{LANG_KEY_CONST.TOOLTIP_SORT}</Typography>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  );
+}
+
+interface ContentProps {
+  children: ReactNode;
+}
+function TanstackTableContent({ children }: ContentProps) {
+  return <div className="border rounded-sm">{children}</div>;
+}
+
+interface DataProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
-function TanstackTableContent<TData, TValue>({
+function TanstackTableData<TData, TValue>({
   data,
   columns,
-}: ContentProps<TData, TValue>) {
+}: DataProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
@@ -119,4 +179,10 @@ function TanstackTableContent<TData, TValue>({
   );
 }
 
-export { TanstackTableContent, TanstackTable, TanstackTableHeader };
+export {
+  TanstackTable,
+  TanstackTableHeader,
+  TanstackTableContent,
+  TanstackTableFilter,
+  TanstackTableData,
+};

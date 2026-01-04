@@ -2,12 +2,16 @@ import {
   Button,
   TanstackTable,
   TanstackTableContent,
+  TanstackTableData,
+  TanstackTableFilter,
   TanstackTableHeader,
+  Typography,
 } from "@components/ui";
+import { LANG_KEY_CONST } from "@constants";
 import { useQueryPermissions } from "@hooks/permisson/use-query-permission.hook";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { type Permission } from "@types";
-import { FolderDown } from "lucide-react";
+import { FileDown, FolderDown } from "lucide-react";
 
 const PermissionPage = () => {
   const { data = [] } = useQueryPermissions({
@@ -24,13 +28,17 @@ const PermissionPage = () => {
     <TanstackTable>
       <TanstackTableHeader title="Permission">
         <div className="flex gap-2">
-          <Button size="icon" variant="secondary">
-            <FolderDown />
+          <Button variant="secondary">
+            <FileDown />
+            <Typography>{LANG_KEY_CONST.EXPORT}</Typography>
           </Button>
-          <Button>+ Add Permission</Button>
+          <Button>+ {LANG_KEY_CONST.PERMISSION.BTN_ADD}</Button>
         </div>
       </TanstackTableHeader>
-      <TanstackTableContent data={data} columns={columns} />
+      <TanstackTableContent>
+        <TanstackTableFilter />
+        <TanstackTableData data={data} columns={columns} />
+      </TanstackTableContent>
     </TanstackTable>
   );
 };
