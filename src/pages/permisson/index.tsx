@@ -4,7 +4,6 @@ import {
   TanstackTable,
   TanstackTableContent,
   TanstackTableData,
-  TanstackTableFilter,
   TanstackTableHeader,
   Typography,
 } from "@components/ui";
@@ -19,8 +18,8 @@ import FormCreatePermission from "./components/form-create-permission.component"
 const PermissionPage = () => {
   const [query, setQuery] = useState({
     page: 1,
-    limit: 15,
-    pagination: true,
+    limit: 10,
+    pagination: false,
   });
   const { data } = useQueryPermissions({
     page: query.page,
@@ -34,6 +33,7 @@ const PermissionPage = () => {
     columnHelper.display({
       id: "stt",
       header: "STT",
+      size: 50,
       cell: ({ row }) => {
         if (query.pagination && data?.meta) {
           const stt = (data?.meta.page - 1) * data.meta.limit + row.index + 1;
@@ -42,7 +42,10 @@ const PermissionPage = () => {
         return <Typography>{row.index + 1}</Typography>;
       },
     }),
-    columnHelper.accessor("resource", { header: "Tài nguyên" }),
+    columnHelper.accessor("resource", {
+      header: "Tài nguyên",
+      size: 50,
+    }),
     columnHelper.accessor("action", {
       header: "Hành động",
       cell: ({ getValue }) => {
@@ -92,16 +95,15 @@ const PermissionPage = () => {
         </div>
       </TanstackTableHeader>
       <TanstackTableContent>
-        <TanstackTableFilter />
         <TanstackTableData
           data={data?.entities ?? []}
           columns={columns}
           is_pagination={query.pagination}
           meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
           onPageChange={(page) => {
-            console.log(page);
             setQuery((prev) => ({ ...prev, page }));
           }}
+          pinning={["stt", "resource"]}
         />
       </TanstackTableContent>
     </TanstackTable>

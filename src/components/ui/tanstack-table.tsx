@@ -2,18 +2,33 @@ import {
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
+  type Column,
   type ColumnDef,
+  type ColumnPinningState,
+  type SortingState,
+  type Table as Tanstack,
 } from "@tanstack/react-table";
-import { createContext, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { Typography } from "./typography";
 
 import { Button } from "./button";
 import {
+  ArrowDownAZ,
   ArrowDownUp,
+  ArrowDownWideNarrow,
   ArrowLeftIcon,
   ArrowRightIcon,
+  ArrowUpNarrowWide,
   FunnelPlus,
   Grid2x2,
   SearchIcon,
@@ -58,7 +73,7 @@ interface HeaderProps {
 }
 function TanstackTableHeader({ children, title }: HeaderProps) {
   return (
-    <div className="flex justify-between items-center h-16">
+    <div className="flex justify-between items-center py-2">
       <Typography variant="h4" className="flex-1">
         {title}
       </Typography>
@@ -74,12 +89,17 @@ function TanstackTableContent({ children }: ContentProps) {
   return <div className="border rounded-sm">{children}</div>;
 }
 
-interface FilterProps {}
-function TanstackTableFilter({}: FilterProps) {
+interface FilterProps {
+  table: Tanstack<any>;
+}
+function TanstackTableFilter({ table }: FilterProps) {
   return (
     <div className="border-b flex justify-between items-center py-2 px-4">
       <InputGroup variant="outline" className="w-[20%] p-0 shadow-none">
-        <InputGroupInput placeholder="Search..." />
+        <InputGroupInput
+          onChange={(e) => table.setGlobalFilter(String(e.target.value))}
+          placeholder="Search..."
+        />
         <InputGroupAddon className="p-0">
           <SearchIcon />
         </InputGroupAddon>
@@ -88,7 +108,7 @@ function TanstackTableFilter({}: FilterProps) {
         <InputDate />
         <InputDateRange />
 
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           manage column <Grid2x2 />
         </Button>
         <Tooltip>
@@ -127,38 +147,58 @@ interface DataProps<TData, TValue> {
     total_pages: number;
   };
   onPageChange?: (page: number) => void;
+  pinning?: string[];
 }
+
 function TanstackTableData<TData, TValue>({
   data,
   columns,
   is_pagination = true,
   meta,
   onPageChange,
+  pinning,
 }: DataProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
+    left: pinning,
+  });
+
   const table = useReactTable({
     data,
     columns,
     initialState: {
       pagination: {
-        pageSize: is_pagination ? meta.limit : 15,
-        pageIndex: is_pagination ? meta.page : 1,
+        pageSize: is_pagination ? meta.limit : 10,
+        pageIndex: is_pagination ? meta.page : 0,
       },
       columnVisibility: {
         id: false,
         _id: false,
       },
     },
-    // state: {
-    //   pagination: {
-    //     pageIndex: is_pagination ? meta.page : 0,
-    //     pageSize: is_pagination ? meta.limit : 15,
-    //   },
-    // },
+    state: {
+      sorting,
+      columnPinning,
+    },
+    defaultColumn: {
+      size: 100,
+    },
     getCoreRowModel: getCoreRowModel(),
+    // Pinning
+    onColumnPinningChange: setColumnPinning,
+    // Pagination
     getPaginationRowModel: is_pagination ? undefined : getPaginationRowModel(),
+    // Filter
+    getFilteredRowModel: is_pagination ? undefined : getFilteredRowModel(),
+    // Sorting
+    getSortedRowModel: is_pagination ? undefined : getSortedRowModel(),
+    onSortingChange: setSorting,
+    // Expand
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row: any) => row.children,
+    // Client or Server
     manualPagination: is_pagination,
+    manualFiltering: is_pagination,
     pageCount: is_pagination ? meta.total_pages : undefined,
   });
 
@@ -166,27 +206,41 @@ function TanstackTableData<TData, TValue>({
     ? meta.page
     : table.getState().pagination.pageIndex + 1;
   const pageSize = is_pagination
-    ? meta?.limit ?? 15
+    ? meta.limit
     : table.getState().pagination.pageSize;
   const total = is_pagination ? meta.total : data.length;
   const from = data.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
 
-  const handleClickChangePage = (is_previous: boolean) => {
-    if (is_previous) {
-      if (is_pagination) {
-        onPageChange?.(currentPage - 1);
+  const handleClickChangePage = useCallback(
+    (is_previous: boolean) => {
+      if (is_previous) {
+        if (is_pagination) {
+          onPageChange?.(currentPage - 1);
+        } else {
+          table.previousPage();
+        }
       } else {
-        table.previousPage();
+        if (is_pagination) {
+          onPageChange?.(currentPage + 1);
+        } else {
+          table.nextPage();
+        }
       }
-    } else {
+    },
+    [is_pagination, onPageChange, currentPage, table]
+  );
+
+  const handlePageClick = useCallback(
+    (page: number) => {
       if (is_pagination) {
-        onPageChange?.(currentPage + 1);
+        onPageChange?.(page);
       } else {
-        table.nextPage();
+        table.setPageIndex(page - 1);
       }
-    }
-  };
+    },
+    [is_pagination, onPageChange, table]
+  );
 
   const renderPageNumbers = () => {
     const pages = [];
@@ -198,15 +252,8 @@ function TanstackTableData<TData, TValue>({
       pages.push(
         <Button
           key={i}
-          onClick={() => {
-            if (is_pagination) {
-              onPageChange?.(i);
-            } else {
-              table.setPageIndex(i - 1);
-            }
-          }}
+          onClick={() => handlePageClick(i)}
           variant={i === currentPage ? "default" : "outline"}
-          size="sm"
         >
           {i}
         </Button>
@@ -215,48 +262,79 @@ function TanstackTableData<TData, TValue>({
     return pages;
   };
 
-  const handleGoToPage = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter") return;
+  const handleGoToPage = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== "Enter") return;
 
-    const input = e.target as HTMLInputElement;
-    const page = Number(input.value.trim());
+      const input = e.target as HTMLInputElement;
+      const page = Number(input.value.trim());
 
-    if (isNaN(page) || page < 1) {
-      input.value = "";
-      return;
-    }
+      if (isNaN(page) || page < 1) {
+        input.value = "";
+        return;
+      }
 
-    const maxPage = is_pagination
-      ? meta?.total_pages ?? 1
-      : table.getPageCount();
+      const maxPage = is_pagination
+        ? meta?.total_pages ?? 1
+        : table.getPageCount();
 
-    if (page > maxPage) {
-      input.value = maxPage.toString();
-      return;
-    }
+      if (page > maxPage) {
+        input.value = maxPage.toString();
+        return;
+      }
 
-    if (is_pagination) {
-      onPageChange?.(page);
-    } else {
-      table.setPageIndex(page - 1);
-    }
+      if (is_pagination) {
+        onPageChange?.(page);
+      } else {
+        table.setPageIndex(page - 1);
+      }
 
-    input.blur();
+      input.blur();
+    },
+    [is_pagination, meta?.total_pages, onPageChange, table]
+  );
+
+  const getCommonPinningStyles = (column: Column<TData>): CSSProperties => {
+    const isPinned = column.getIsPinned();
+    // const isLastLeftPinnedColumn =
+    //   isPinned === "left" && column.getIsLastColumn("left");
+
+    return {
+      // boxShadow: isLastLeftPinnedColumn
+      //   ? "-4px 0 4px -4px gray inset"
+      //   : undefined,
+      left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+      position: isPinned ? "sticky" : "relative",
+      width: column.getSize(),
+      zIndex: isPinned ? 1 : 0,
+    };
   };
   return (
     <>
+      <TanstackTableFilter table={table} />
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
+                <TableHead
+                  key={header.id}
+                  style={{ ...getCommonPinningStyles(header.column) }}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  {header.isPlaceholder ? null : (
+                    <div className="flex items-center gap-2 ">
+                      {flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
+                      {{
+                        asc: <ArrowUpNarrowWide className="w-4 h-4" />,
+                        desc: <ArrowDownWideNarrow className="w-4 h-4" />,
+                      }[header.column.getIsSorted() as string] ?? null}
+                    </div>
+                  )}
                 </TableHead>
               ))}
             </TableRow>
@@ -267,7 +345,10 @@ function TanstackTableData<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    style={{ ...getCommonPinningStyles(cell.column) }}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -344,6 +425,5 @@ export {
   TanstackTable,
   TanstackTableHeader,
   TanstackTableContent,
-  TanstackTableFilter,
   TanstackTableData,
 };
