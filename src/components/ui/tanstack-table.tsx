@@ -88,12 +88,12 @@ function TanstackTableFilter({}: FilterProps) {
         <InputDate />
         <InputDateRange />
 
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           manage column <Grid2x2 />
         </Button>
         <Tooltip>
           <TooltipTrigger>
-            <Button size="icon" variant="outline">
+            <Button size="icon-sm" variant="outline">
               <FunnelPlus />
             </Button>
           </TooltipTrigger>
@@ -103,7 +103,7 @@ function TanstackTableFilter({}: FilterProps) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger>
-            <Button size="icon" variant="outline">
+            <Button size="icon-sm" variant="outline">
               <ArrowDownUp />
             </Button>
           </TooltipTrigger>
@@ -119,114 +119,224 @@ function TanstackTableFilter({}: FilterProps) {
 interface DataProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  is_pagination?: boolean;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+  onPageChange?: (page: number) => void;
 }
 function TanstackTableData<TData, TValue>({
   data,
   columns,
+  is_pagination = true,
+  meta,
+  onPageChange,
 }: DataProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     initialState: {
+      pagination: {
+        pageSize: is_pagination ? meta.limit : 15,
+        pageIndex: is_pagination ? meta.page : 1,
+      },
       columnVisibility: {
         id: false,
         _id: false,
       },
     },
-    defaultColumn: {
-      size: 200,
-      minSize: 200,
-      maxSize: 250,
-    },
-    getSubRows: (row: any) => row.children,
+    // state: {
+    //   pagination: {
+    //     pageIndex: is_pagination ? meta.page : 0,
+    //     pageSize: is_pagination ? meta.limit : 15,
+    //   },
+    // },
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: is_pagination ? undefined : getPaginationRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
+    getSubRows: (row: any) => row.children,
+    manualPagination: is_pagination,
+    pageCount: is_pagination ? meta.total_pages : undefined,
   });
-  return (
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-              {row.getIsExpanded() && (
-                <tr>
-                  <td colSpan={row.getAllCells().length}></td>
-                </tr>
-              )}
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
-  );
-}
 
-function TanstackTableFooter() {
+  const currentPage = is_pagination
+    ? meta.page
+    : table.getState().pagination.pageIndex + 1;
+  const pageSize = is_pagination
+    ? meta?.limit ?? 15
+    : table.getState().pagination.pageSize;
+  const total = is_pagination ? meta.total : data.length;
+  const from = data.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const to = Math.min(currentPage * pageSize, total);
+
+  const handleClickChangePage = (is_previous: boolean) => {
+    if (is_previous) {
+      if (is_pagination) {
+        onPageChange?.(currentPage - 1);
+      } else {
+        table.previousPage();
+      }
+    } else {
+      if (is_pagination) {
+        onPageChange?.(currentPage + 1);
+      } else {
+        table.nextPage();
+      }
+    }
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const totalPages = is_pagination ? meta.total_pages : table.getPageCount();
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Button
+          key={i}
+          onClick={() => {
+            if (is_pagination) {
+              onPageChange?.(i);
+            } else {
+              table.setPageIndex(i - 1);
+            }
+          }}
+          variant={i === currentPage ? "default" : "outline"}
+          size="sm"
+        >
+          {i}
+        </Button>
+      );
+    }
+    return pages;
+  };
+
+  const handleGoToPage = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    const input = e.target as HTMLInputElement;
+    const page = Number(input.value.trim());
+
+    if (isNaN(page) || page < 1) {
+      input.value = "";
+      return;
+    }
+
+    const maxPage = is_pagination
+      ? meta?.total_pages ?? 1
+      : table.getPageCount();
+
+    if (page > maxPage) {
+      input.value = maxPage.toString();
+      return;
+    }
+
+    if (is_pagination) {
+      onPageChange?.(page);
+    } else {
+      table.setPageIndex(page - 1);
+    }
+
+    input.blur();
+  };
   return (
-    <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
-      <Typography className="text-xs flex-1">
-        Showing 8 of 25 agreement
-      </Typography>
-      <ButtonGroup className="flex-1 flex justify-center">
-        <ButtonGroup>
-          <Button variant="outline" size="icon-xs" aria-label="Previous">
-            <ArrowLeftIcon className="size-3" />
-          </Button>
-          <Button variant="outline" size="xs">
-            1
-          </Button>
-          <Button variant="outline" size="xs">
-            2
-          </Button>
-          <Button variant="outline" size="xs">
-            3
-          </Button>
-          <Button variant="outline" size="xs">
-            4
-          </Button>
-          <Button variant="outline" size="xs">
-            5
-          </Button>
-          <Button variant="outline" size="icon-xs" aria-label="Next">
-            <ArrowRightIcon className="size-3" />
-          </Button>
+    <>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+                {row.getIsExpanded() && (
+                  <tr>
+                    <td colSpan={row.getAllCells().length}></td>
+                  </tr>
+                )}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
+        <Typography className="text-xs flex-1">
+          Showing {from} to {to} of {total} {total === 1 ? "entry" : "entries"}
+        </Typography>
+        <ButtonGroup className="flex-1 flex justify-center">
+          <ButtonGroup>
+            <Button
+              onClick={() => handleClickChangePage(true)}
+              disabled={currentPage === 1}
+              variant="outline"
+              size="icon-sm"
+              aria-label="Previous"
+            >
+              <ArrowLeftIcon className="size-3" />
+            </Button>
+            {renderPageNumbers()}
+            <Button
+              onClick={() => handleClickChangePage(false)}
+              disabled={
+                currentPage ===
+                (is_pagination ? meta.total_pages : table.getPageCount())
+              }
+              variant="outline"
+              size="icon-sm"
+              aria-label="Next"
+            >
+              <ArrowRightIcon className="size-3" />
+            </Button>
+          </ButtonGroup>
         </ButtonGroup>
-      </ButtonGroup>
-      <div className="flex-1">
-        <div className="flex justify-end gap-2 items-center">
-          <Typography className="text-xs">Go to Page</Typography>
-          <Input className="w-12 rounded-sm h-6 p-2" />
+        <div className="flex-1">
+          <div className="flex justify-end gap-2 items-center">
+            <Typography className="text-xs">Go to Page</Typography>
+            <Tooltip>
+              <TooltipTrigger>
+                <Input
+                  type="number"
+                  placeholder="Page Number"
+                  min={1}
+                  max={is_pagination ? meta?.total_pages : table.getPageCount()}
+                  className="w-28 rounded-sm p-2"
+                  onKeyDown={handleGoToPage}
+                />
+              </TooltipTrigger>
+              <TooltipContent>Nhập trang mong muốn → Enter</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -236,5 +346,4 @@ export {
   TanstackTableContent,
   TanstackTableFilter,
   TanstackTableData,
-  TanstackTableFooter,
 };

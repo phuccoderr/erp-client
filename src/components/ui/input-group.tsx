@@ -11,13 +11,13 @@ const inputGroupClasses = [
   "border-input",
   "dark:bg-input/30",
   "relative",
-  "flex w-full items-center",
+  "flex w-full h-8 items-center",
   "rounded-sm border shadow-xs",
   "transition-[color,box-shadow]",
   "outline-none",
 
   // Chiều cao và xử lý textarea
-  "h-9 min-w-0",
+  "min-w-0",
   "has-[>textarea]:h-auto",
 
   // Biến thể theo vị trí (alignment) của addon (icon, button, text...)

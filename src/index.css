@@ -59,8 +59,16 @@
   /* Table */
   --color-table-header: var(--table-header-bg);
   --color-table-header-foreground: var(--table-header-foreground);
+
+  /* Tooltip */
   --color-tooltip-bg: var(--tooltip-bg);
   --color-tooltip-foreground: var(--tooltip-foreground);
+
+  /* Badge */
+  --color-badge-bg: var(--badge-bg);
+  --color-badge-foreground: var(--badge-foreground);
+  --color-badge-bg-green: var(--badge-bg-green);
+  --color-badge-bg-purple: var(--badge-bg-purple);
 }
 
 :root {
@@ -128,6 +136,12 @@
   /* Tooltip */
   --tooltip-bg: #ebebeb;
   --tooltip-foreground: var(--foreground);
+
+  /* Badge */
+  --badge-bg: #4890f5;
+  --badge-foreground: #fff;
+  --badge-bg-green: #13db43;
+  --badge-bg-purple: #995af1;
 }
 
 .dark {
@@ -182,6 +196,10 @@
 
   --tooltip-bg: var(--foreground);
   --tooltip-foreground: var(--background);
+
+  --badge-bg: #01439e;
+  --badge-bg-green: #339602;
+  --badge-bg-purple: #3b0881;
 }
 
 @layer base {

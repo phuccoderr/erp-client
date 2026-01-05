@@ -97,7 +97,7 @@ const InputDateRange = ({ dateRange, onChange }: DateRangeProps) => {
           <Popover>
             <PopoverTrigger asChild>
               <InputGroupAddon align="inline-end">
-                <InputGroupButton className="rounded-full" size="icon-xs">
+                <InputGroupButton size="icon-xs">
                   <CalendarSearch />
                 </InputGroupButton>
               </InputGroupAddon>

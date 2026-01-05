@@ -1,4 +1,5 @@
 export * from "./aspect-ratio";
+export * from "./badge";
 export * from "./button-group";
 export * from "./button";
 export * from "./calendar";

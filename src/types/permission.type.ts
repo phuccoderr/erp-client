@@ -1,14 +1,15 @@
-import type { ApiEndPoint } from "./api-end-point.type";
 import type { BaseQuery } from "./base-query.type";
 
 export type Permission = {
   id: number;
 
-  name: string;
+  resource: string;
 
   description: string;
 
-  api_end_points: ApiEndPoint[];
+  path: string;
+
+  action: string;
 
   created_at: number;
 
@@ -23,6 +24,6 @@ export type CreatePermission = {
   api_end_point_ids: number[];
 };
 
-export type FindAllPermission = BaseQuery & {
-  name?: string;
+export type FindAllPermission = BaseQuery<Permission> & {
+  resource?: string;
 };
