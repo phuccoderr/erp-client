@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Inter:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,7 +6,7 @@
 
 @theme inline {
   /* Font */
-  --font-vietnam: "Be Vietnam Pro", sans-serif;
+  --font-vietnam: "Inter", sans-serif;
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -64,11 +64,15 @@
   --color-tooltip-bg: var(--tooltip-bg);
   --color-tooltip-foreground: var(--tooltip-foreground);
 
-  /* Badge */
-  --color-badge-bg: var(--badge-bg);
-  --color-badge-foreground: var(--badge-foreground);
-  --color-badge-bg-green: var(--badge-bg-green);
-  --color-badge-bg-purple: var(--badge-bg-purple);
+  /* Outline */
+  --color-outline: var(--outline);
+  --color-outline-foreground: var(--outline-foreground);
+  --color-outline-green: var(--outline-green);
+  --color-outline-green-foreground: var(--outline-green-foreground);
+  --color-outline-purple: var(--outline-purple);
+  --color-outline-purple-foreground: var(--outline-purple-foreground);
+  --color-outline-red: var(--outline-red);
+  --color-outline-red-foreground: var(--outline-red-foreground);
 }
 
 :root {
@@ -76,8 +80,8 @@
   --radius: 0.625rem;
 
   /* Background & Text */
-  --background: rgb(255, 255, 255);
-  --foreground: #515b73;
+  --background: oklch(100% 0 0);
+  --foreground: oklch(18.84% 0.0128 248.51);
 
   /* Card & Popover */
   --card: oklch(1 0 0);
@@ -86,26 +90,37 @@
   --popover-foreground: oklch(0.145 0 0);
 
   /* Primary */
-  --primary: #506ee4;
+  --primary: oklch(62.3% 0.214 259.815);
   --primary-hover: rgb(49, 84, 223);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(100% 0 0);
 
   /* Secondary & Muted */
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(96.7% 0.001 286.375);
   --secondary-hover: oklch(0.86 0 0);
-  --secondary-foreground: #515b73;
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary-foreground: oklch(27.4% 0.006 286.033);
+  --muted: oklch(96.7% 0.001 286.375);
+  --muted-foreground: oklch(55.2% 0.016 285.938);
+  --accent: oklch(96.7% 0.001 286.375);
+  --accent-foreground: oklch(21% 0.006 285.885);
 
   /* Destructive */
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(61.88% 0.2376 25.7658);
+  --destructive-foreground: var(--primary-foreground);
+
+  /* Outline */
+  --outline: oklch(96.2% 0.044 260);
+  --outline-foreground: var(--primary);
+  --outline-green: oklch(96.2% 0.044 156.743);
+  --outline-green-foreground: oklch(44.8% 0.119 151.328);
+  --outline-purple: oklch(96.2% 0.044 310);
+  --outline-purple-foreground: oklch(44.8% 0.119 310);
+  --outline-red: oklch(96.2% 0.06 30);
+  --outline-red-foreground: oklch(44.8% 0.16 30);
 
   /* Border & Input */
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(93.17% 0.0118 231.659);
+  --input: oklch(93.17% 0.0118 231.659);
+  --ring: oklch(68.18% 0.1584 243.354);
 
   /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -115,14 +130,14 @@
   --chart-5: oklch(0.769 0.188 70.08);
 
   /* Sidebar */
-  --sidebar: rgb(255, 255, 255);
-  --sidebar-foreground: #202c4b;
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: oklch(67.23% 0.1606 244.996);
+  --sidebar-primary-foreground: var(--background);
+  --sidebar-accent: oklch(93.92% 0.0166 250.845);
+  --sidebar-accent-foreground: oklch(67.23% 0.1606 244.996);
+  --sidebar-border: oklch(92.71% 0.0101 238.518);
+  --sidebar-ring: oklch(68.18% 0.1584 243.354);
 
   /* Table  */
   --table-bg: var(--card);
@@ -136,12 +151,6 @@
   /* Tooltip */
   --tooltip-bg: #ebebeb;
   --tooltip-foreground: var(--foreground);
-
-  /* Badge */
-  --badge-bg: #4890f5;
-  --badge-foreground: #fff;
-  --badge-bg-green: #13db43;
-  --badge-bg-purple: #995af1;
 }
 
 .dark {
@@ -197,9 +206,14 @@
   --tooltip-bg: var(--foreground);
   --tooltip-foreground: var(--background);
 
-  --badge-bg: #01439e;
-  --badge-bg-green: #339602;
-  --badge-bg-purple: #3b0881;
+  --outline: oklch(96.2% 0.044 260);
+  --outline-foreground: oklch(44.8% 0.119 260);
+  --outline-green: oklch(96.2% 0.044 156.743);
+  --outline-green-foreground: oklch(44.8% 0.119 151.328);
+  --outline-purple: oklch(96.2% 0.044 310);
+  --outline-purple-foreground: oklch(44.8% 0.119 310);
+  --outline-red: oklch(96.2% 0.06 30);
+  --outline-red-foreground: oklch(44.8% 0.16 30);
 }
 
 @layer base {
@@ -207,6 +221,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-vietnam;
   }
 }

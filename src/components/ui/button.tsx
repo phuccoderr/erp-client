@@ -18,24 +18,21 @@ const buttonVariants = cva(
     "[&_svg:not([class*='size-'])]:size-4 " + // Nếu icon SVG không có class chứa "size-" (ví dụ size-5), thì tự động set kích thước 4 (16px)
     "shrink-0 [&_svg]:shrink-0 " + // Button và icon không bị co lại khi flex shrink
     "outline-none " + // Loại bỏ viền outline mặc định khi focus (sẽ thay bằng focus-visible custom)
-    "focus-visible:border-ring " + // Khi focus bằng bàn phím: viền màu --ring (thường là primary mờ)
-    "focus-visible:ring-ring/50 " + // Khi focus bằng bàn phím: thêm ring (vòng ngoài) màu --ring với độ trong suốt 50%
-    "focus-visible:ring-[3px] " + // Độ dày của ring là 3px
     "aria-invalid:ring-destructive/20 " + // Nếu có aria-invalid (lỗi form): thêm ring màu destructive (đỏ) trong suốt 20% ở light mode
     "dark:aria-invalid:ring-destructive/40 " + // Ở dark mode: ring destructive trong suốt 40% (đậm hơn một chút)
     "aria-invalid:border-destructive", // Nếu lỗi: viền button chuyển thành màu destructive (đỏ),
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground hover:bg-[var(--primary-hover)]",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary-hover",
-        ghost: "",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

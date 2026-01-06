@@ -6,11 +6,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type VisibilityState,
   type Column,
   type ColumnDef,
   type ColumnPinningState,
   type SortingState,
-  type Table as Tanstack,
 } from "@tanstack/react-table";
 import {
   createContext,
@@ -23,7 +23,6 @@ import { Typography } from "./typography";
 
 import { Button } from "./button";
 import {
-  ArrowDownAZ,
   ArrowDownUp,
   ArrowDownWideNarrow,
   ArrowLeftIcon,
@@ -31,6 +30,7 @@ import {
   ArrowUpNarrowWide,
   FunnelPlus,
   Grid2x2,
+  RefreshCw,
   SearchIcon,
 } from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
@@ -51,6 +51,11 @@ import {
   TableRow,
   ButtonGroup,
   Input,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
 } from "@components/ui";
 
 const TanstackTableContext = createContext(null);
@@ -89,53 +94,6 @@ function TanstackTableContent({ children }: ContentProps) {
   return <div className="border rounded-sm">{children}</div>;
 }
 
-interface FilterProps {
-  table: Tanstack<any>;
-}
-function TanstackTableFilter({ table }: FilterProps) {
-  return (
-    <div className="border-b flex justify-between items-center py-2 px-4">
-      <InputGroup variant="outline" className="w-[20%] p-0 shadow-none">
-        <InputGroupInput
-          onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-          placeholder="Search..."
-        />
-        <InputGroupAddon className="p-0">
-          <SearchIcon />
-        </InputGroupAddon>
-      </InputGroup>
-      <div className="flex gap-2 items-center">
-        <InputDate />
-        <InputDateRange />
-
-        <Button variant="outline">
-          manage column <Grid2x2 />
-        </Button>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon-sm" variant="outline">
-              <FunnelPlus />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon-sm" variant="outline">
-              <ArrowDownUp />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <Typography>{LANG_KEY_CONST.TOOLTIP_SORT}</Typography>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    </div>
-  );
-}
-
 interface DataProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -148,6 +106,7 @@ interface DataProps<TData, TValue> {
   };
   onPageChange?: (page: number) => void;
   pinning?: string[];
+  onRefresh?: () => void;
 }
 
 function TanstackTableData<TData, TValue>({
@@ -157,18 +116,20 @@ function TanstackTableData<TData, TValue>({
   meta,
   onPageChange,
   pinning,
+  onRefresh,
 }: DataProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
     left: pinning,
   });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
     columns,
     initialState: {
       pagination: {
-        pageSize: is_pagination ? meta.limit : 10,
+        pageSize: is_pagination ? meta.limit : 15,
         pageIndex: is_pagination ? meta.page : 0,
       },
       columnVisibility: {
@@ -177,6 +138,7 @@ function TanstackTableData<TData, TValue>({
       },
     },
     state: {
+      columnVisibility,
       sorting,
       columnPinning,
     },
@@ -193,6 +155,8 @@ function TanstackTableData<TData, TValue>({
     // Sorting
     getSortedRowModel: is_pagination ? undefined : getSortedRowModel(),
     onSortingChange: setSorting,
+    // Visibility
+    onColumnVisibilityChange: setColumnVisibility,
     // Expand
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row: any) => row.children,
@@ -312,7 +276,115 @@ function TanstackTableData<TData, TValue>({
   };
   return (
     <>
-      <TanstackTableFilter table={table} />
+      {/* Filter */}
+      <div className="border-b flex justify-between items-center py-2 px-4">
+        <InputGroup variant="outline" className="w-[20%] p-0 shadow-none">
+          <InputGroupInput
+            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
+            placeholder="Search..."
+          />
+          <InputGroupAddon className="p-0">
+            <SearchIcon />
+          </InputGroupAddon>
+        </InputGroup>
+        <div className="flex gap-2 items-center">
+          <InputDate />
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={() => onRefresh?.()}
+                size="icon-sm"
+                variant="outline"
+              >
+                <RefreshCw />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Typography>{LANG_KEY_CONST.TOOLTIP_REFRESH}</Typography>
+            </TooltipContent>
+          </Tooltip>
+          {/* Manage Column */}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="outline">
+                    <Grid2x2 />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {LANG_KEY_CONST.TOOLTIP_MANAGE_COLUMN}
+                </TooltipContent>
+              </Tooltip>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuCheckboxItem
+                onSelect={(e) => e.preventDefault()}
+                checked={table
+                  .getAllColumns()
+                  .every((column) => column.getIsVisible())}
+                onCheckedChange={(checked) => {
+                  table.getAllLeafColumns().forEach((column) => {
+                    if (column.getCanHide() !== false) {
+                      column.toggleVisibility(!!checked);
+                    }
+                  });
+                }}
+                className={`${
+                  table.getAllColumns().every((column) => column.getIsVisible())
+                    ? "focus:bg-outline"
+                    : "focus:bg-transparent"
+                } focus:text-primary text-xs`}
+              >
+                {LANG_KEY_CONST.SELECT_ALL}
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              {table.getAllLeafColumns().map((column) => (
+                <DropdownMenuCheckboxItem
+                  className={`${
+                    column.getIsVisible()
+                      ? "focus:bg-outline"
+                      : "focus:bg-transparent"
+                  } focus:text-primary text-xs`}
+                  key={`${column.id}-${column.getIsVisible()}`}
+                  disabled={!column.getCanHide()}
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(checked) =>
+                    column.toggleVisibility(!!checked)
+                  }
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {(column.columnDef.header as string) ??
+                    column.id.replace(/_/g, " ")}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Filter */}
+          <Tooltip>
+            <TooltipTrigger>
+              <Button size="icon-sm" variant="outline">
+                <FunnelPlus />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
+            </TooltipContent>
+          </Tooltip>
+          {/* Sort */}
+          <Tooltip>
+            <TooltipTrigger>
+              <Button size="icon-sm" variant="outline">
+                <ArrowDownUp />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Typography>{LANG_KEY_CONST.TOOLTIP_SORT}</Typography>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+      {/* Table */}
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -368,6 +440,7 @@ function TanstackTableData<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      {/* Footer */}
       <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
         <Typography className="text-xs flex-1">
           Showing {from} to {to} of {total} {total === 1 ? "entry" : "entries"}

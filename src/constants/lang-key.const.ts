@@ -10,6 +10,7 @@ export const LANG_KEY_CONST = {
     LOGIN_CKCBOX_REMEMBER: "auth_login_ckcbox_remember",
   },
   EXPORT: "export",
+  SELECT_ALL: "select_all",
   PERMISSION: {
     BTN_ADD: "permission_btn_add",
   },
@@ -17,4 +18,6 @@ export const LANG_KEY_CONST = {
   TOOLTIP_SORT: "tooltip_sort",
   TOOLTIP_INPUT_DATE: "tooltip_input_date",
   TOOLTIP_INPUT_DATE_RANGE: "tooltip_input_date_range",
+  TOOLTIP_MANAGE_COLUMN: "tooltip_manage_column",
+  TOOLTIP_REFRESH: "tooltip_refresh",
 };

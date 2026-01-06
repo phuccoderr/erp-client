@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon, CircleIcon, Lock } from "lucide-react";
 
 import { cn } from "@lib";
 
@@ -74,7 +74,7 @@ function DropdownMenuContent({
           "overflow-x-hidden overflow-y-auto",
 
           // Bo góc, viền, padding và shadow để có giao diện material/popover đẹp
-          "rounded-xs", // bo góc nhỏ (xs = extra small)
+          "rounded-sm", // bo góc nhỏ (xs = extra small)
           "border", // viền mỏng quanh menu
           "p-1", // padding bên trong nhỏ
 
@@ -128,18 +128,23 @@ function DropdownMenuCheckboxItem({
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        `${checked ? "bg-outline text-primary" : ""}`,
         className
       )}
       checked={checked}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+      {children}
+      <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
+          {props.disabled ? (
+            <Lock className="size-3" />
+          ) : (
+            <CheckIcon className="size-3" />
+          )}
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
-      {children}
     </DropdownMenuPrimitive.CheckboxItem>
   );
 }

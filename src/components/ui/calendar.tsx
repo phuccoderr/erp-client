@@ -43,7 +43,7 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       locale={vi}
       className={cn(
-        " group/calendar [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        "group/calendar [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -80,7 +80,7 @@ function Calendar({
           defaultClassNames.month_caption
         ),
         dropdowns: cn(
-          "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
+          "w-full flex items-center text-xs font-medium justify-center h-(--cell-size) gap-1.5",
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
@@ -94,14 +94,14 @@ function Calendar({
         caption_label: cn(
           "select-none font-medium",
           captionLayout === "label"
-            ? "text-sm"
-            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+            ? "text-xs"
+            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-xs h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",
+          "text-muted-foreground rounded-md flex-1 font-normal text-xs select-none",
           defaultClassNames.weekday
         ),
         week: cn("flex w-full mt-2", defaultClassNames.week),
@@ -259,6 +259,7 @@ function CalendarDayButton({
         "data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md", // Ngày đầu: bo góc trái đầy đủ
 
         /* Style cho phần text phụ (thường là lunar date hoặc note nhỏ bên dưới ngày) */
+        "text-xs",
         "[&>span]:text-xs [&>span]:opacity-70", // Các <span> con: chữ size xs, opacity 70%
         "hover:bg-muted",
 

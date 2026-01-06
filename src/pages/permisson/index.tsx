@@ -21,7 +21,7 @@ const PermissionPage = () => {
     limit: 10,
     pagination: false,
   });
-  const { data } = useQueryPermissions({
+  const { data, refetch } = useQueryPermissions({
     page: query.page,
     limit: query.limit,
     pagination: query.pagination,
@@ -45,6 +45,7 @@ const PermissionPage = () => {
     columnHelper.accessor("resource", {
       header: "Tài nguyên",
       size: 50,
+      enableHiding: false,
     }),
     columnHelper.accessor("action", {
       header: "Hành động",
@@ -54,18 +55,16 @@ const PermissionPage = () => {
           {
             icon: React.ElementType;
             variant:
-              | "default"
-              | "green"
-              | "purple"
-              | "destructive"
-              | "secondary"
-              | "outline";
+              | "outline_red"
+              | "outline_purple"
+              | "outline"
+              | "outline_green";
           }
         > = {
-          get: { icon: Eye, variant: "default" },
-          post: { icon: CirclePlus, variant: "green" },
-          patch: { icon: Edit3, variant: "purple" },
-          delete: { icon: Trash2, variant: "destructive" },
+          get: { icon: Eye, variant: "outline" },
+          post: { icon: CirclePlus, variant: "outline_green" },
+          patch: { icon: Edit3, variant: "outline_purple" },
+          delete: { icon: Trash2, variant: "outline_red" },
         };
 
         const config = ACTION_CONFIG[getValue()] ?? ACTION_CONFIG.get; // fallback an toàn về GET
@@ -104,6 +103,7 @@ const PermissionPage = () => {
             setQuery((prev) => ({ ...prev, page }));
           }}
           pinning={["stt", "resource"]}
+          onRefresh={refetch}
         />
       </TanstackTableContent>
     </TanstackTable>
