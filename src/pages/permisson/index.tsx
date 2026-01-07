@@ -40,6 +40,7 @@ const PermissionPage = () => {
     pagination: query.pagination,
     sort: query.sort,
     order: query.order,
+    resource: query.resource,
   });
 
   const columnHelper = createColumnHelper<Permission>();
@@ -97,6 +98,8 @@ const PermissionPage = () => {
     label,
   }));
 
+  console.log("qq", query);
+
   return (
     <TanstackTable>
       <TanstackTableHeader title="Permission">
@@ -112,44 +115,34 @@ const PermissionPage = () => {
         <TanstackTableData
           data={data?.entities ?? []}
           columns={columns}
-          is_fetching={isFetching}
-          is_pagination={query.pagination}
+          isFetching={isFetching}
+          isPagination={query.pagination}
           meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
           onPageChange={(page) => {
             setQuery((prev) => ({ ...prev, page }));
           }}
-          option_sorts={options}
           pinning={["resource"]}
           onRefresh={refetch}
-          onChangeSort={(option) => {
-            const value = option.value as keyof Permission;
+          // Filter
+          sortOptions={options}
+          onApplySort={(option) => {
+            const sortBy = option.sortBy as keyof Permission;
             const order = option.order === "desc" ? "desc" : "asc";
-            setFilters((prev) => ({ ...prev, sort: value, order: order }));
+            setQuery((prev) => ({ ...prev, sort: sortBy, order: order }));
           }}
-          onInquire={(is_inquire) => {
-            console.log(is_inquire);
-            console.log("filter", filters);
-            if (is_inquire) {
-              setQuery(filters);
-              return;
-            }
-            setFilters({
-              page: 1,
-              limit: 10,
-              pagination: true,
-              sort: undefined,
-              order: undefined,
-              resource: undefined,
-            });
-            setQuery({
-              page: 1,
-              limit: 10,
-              pagination: true,
-              sort: undefined,
-              order: undefined,
-              resource: undefined,
-            });
-          }}
+          filters={[
+            {
+              type: "input",
+              label: "Tìm kiếm tài nguyên",
+              value: filters.resource ?? "",
+              onChange: (resource) =>
+                setFilters((prev) => ({ ...prev, resource })),
+              onApply: () => {
+                console.log(filters.resource);
+                setQuery((prev) => ({ ...prev, resource: filters.resource }));
+              },
+            },
+          ]}
         />
       </TanstackTableContent>
     </TanstackTable>
