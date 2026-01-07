@@ -27,16 +27,18 @@ import {
   ArrowDownWideNarrow,
   ArrowLeftIcon,
   ArrowRightIcon,
+  ArrowUpDown,
   ArrowUpNarrowWide,
+  Eraser,
   FunnelPlus,
   Grid2x2,
   RefreshCw,
+  SearchCheck,
   SearchIcon,
 } from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
 import {
   InputDate,
-  InputDateRange,
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
@@ -56,7 +58,15 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@components/ui";
+import { ButtonAnimated } from "@components/animations";
 
 const TanstackTableContext = createContext(null);
 
@@ -94,9 +104,11 @@ function TanstackTableContent({ children }: ContentProps) {
   return <div className="border rounded-sm">{children}</div>;
 }
 
-interface DataProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataProps<TData> {
+  columns: ColumnDef<TData>[];
   data: TData[];
+  is_loading?: boolean;
+  is_fetching?: boolean;
   is_pagination?: boolean;
   meta: {
     total: number;
@@ -104,25 +116,37 @@ interface DataProps<TData, TValue> {
     limit: number;
     total_pages: number;
   };
-  onPageChange?: (page: number) => void;
   pinning?: string[];
+  option_sorts?: { value: string; label: string }[];
   onRefresh?: () => void;
+  onPageChange?: (page: number) => void;
+  onChangeSort?: (option: {
+    value: string;
+    order: "asc" | "desc" | undefined;
+  }) => void;
+  onInquire?: (is_inquire: boolean) => void;
 }
 
-function TanstackTableData<TData, TValue>({
+function TanstackTableData<TData>({
   data,
   columns,
+  is_loading = false,
   is_pagination = true,
+  is_fetching = false,
   meta,
-  onPageChange,
   pinning,
+  option_sorts,
   onRefresh,
-}: DataProps<TData, TValue>) {
+  onPageChange,
+  onChangeSort,
+  onInquire,
+}: DataProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
     left: pinning,
   });
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [order, setOrder] = useState<"asc" | "desc" | undefined>(undefined);
 
   const table = useReactTable({
     data,
@@ -274,6 +298,17 @@ function TanstackTableData<TData, TValue>({
       zIndex: isPinned ? 1 : 0,
     };
   };
+
+  const renderListSorts = () => {
+    if (option_sorts && option_sorts.length > 0) {
+      return option_sorts.map((item) => (
+        <SelectItem value={item.value}>{item.label}</SelectItem>
+      ));
+    }
+
+    return null;
+  };
+
   return (
     <>
       {/* Filter */}
@@ -289,15 +324,18 @@ function TanstackTableData<TData, TValue>({
         </InputGroup>
         <div className="flex gap-2 items-center">
           <InputDate />
+          {/* Refresh */}
           <Tooltip>
             <TooltipTrigger>
-              <Button
-                onClick={() => onRefresh?.()}
+              <ButtonAnimated
                 size="icon-sm"
                 variant="outline"
+                onClick={() => onRefresh?.()}
+                status={is_fetching ? "processing" : "default"}
+                disabled={is_fetching}
               >
                 <RefreshCw />
-              </Button>
+              </ButtonAnimated>
             </TooltipTrigger>
             <TooltipContent>
               <Typography>{LANG_KEY_CONST.TOOLTIP_REFRESH}</Typography>
@@ -361,16 +399,65 @@ function TanstackTableData<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Filter */}
-          <Tooltip>
-            <TooltipTrigger>
-              <Button size="icon-sm" variant="outline">
-                <FunnelPlus />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
-            </TooltipContent>
-          </Tooltip>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button size="icon-sm" variant="outline">
+                    <FunnelPlus />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
+                </TooltipContent>
+              </Tooltip>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-71">
+              <DropdownMenuLabel>{LANG_KEY_CONST.FILTER}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 mr-auto">
+                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                  <Typography className="font-medium">Sort</Typography>
+                </div>
+                <div className="w-full flex justify-between items-center gap-1.5">
+                  <Select
+                    onValueChange={(value) => {
+                      onChangeSort?.({ value, order });
+                    }}
+                  >
+                    <SelectTrigger size="sm" className="flex-1">
+                      <SelectValue placeholder="thuộc tính" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      {renderListSorts()}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    onValueChange={(value) => setOrder(value as "asc" | "desc")}
+                  >
+                    <SelectTrigger size="sm" className="flex-1">
+                      <SelectValue placeholder="Thứ tự" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectItem value="asc">Tăng dần</SelectItem>
+                      <SelectItem value="desc">Giảm dần</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex justify-end items-center gap-1.5">
+                <Button onClick={() => onInquire?.(false)} variant={"outline"}>
+                  <Eraser /> Clear
+                </Button>
+                <Button onClick={() => onInquire?.(true)}>
+                  <SearchCheck className="text-current" />
+                  Inquire
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {/* Sort */}
           <Tooltip>
             <TooltipTrigger>

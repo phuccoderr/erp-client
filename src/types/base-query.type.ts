@@ -5,7 +5,7 @@ export type BaseQuery<T> = {
 
   sort?: keyof T;
 
-  order?: "ASC" | "DESC";
+  order?: "asc" | "desc";
 
   pagination: boolean;
 };

@@ -7,14 +7,17 @@ import { ThemeProvider } from "@components/providers";
 import { RouterProvider } from "react-router-dom";
 import router from "@router";
 import { queryClient } from "@utils";
+import { LazyMotion, domAnimation } from "motion/react";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools buttonPosition="bottom-right" />
-      <ThemeProvider>
-        <RouterProvider router={router} />
-      </ThemeProvider>
+      <LazyMotion features={domAnimation}>
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </LazyMotion>
     </QueryClientProvider>
   </StrictMode>
 );

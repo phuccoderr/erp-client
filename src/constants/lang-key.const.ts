@@ -20,4 +20,6 @@ export const LANG_KEY_CONST = {
   TOOLTIP_INPUT_DATE_RANGE: "tooltip_input_date_range",
   TOOLTIP_MANAGE_COLUMN: "tooltip_manage_column",
   TOOLTIP_REFRESH: "tooltip_refresh",
+  FILTER: "filter",
+  SORT: "sort",
 };

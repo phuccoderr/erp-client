@@ -73,6 +73,34 @@
   --color-outline-purple-foreground: var(--outline-purple-foreground);
   --color-outline-red: var(--outline-red);
   --color-outline-red-foreground: var(--outline-red-foreground);
+
+  @keyframes loader-spin {
+    0%,
+    100% {
+      box-shadow: 0.2em 0px 0 0px currentcolor;
+    }
+    12% {
+      box-shadow: 0.2em 0.2em 0 0 currentcolor;
+    }
+    25% {
+      box-shadow: 0 0.2em 0 0px currentcolor;
+    }
+    37% {
+      box-shadow: -0.2em 0.2em 0 0 currentcolor;
+    }
+    50% {
+      box-shadow: -0.2em 0 0 0 currentcolor;
+    }
+    62% {
+      box-shadow: -0.2em -0.2em 0 0 currentcolor;
+    }
+    75% {
+      box-shadow: 0px -0.2em 0 0 currentcolor;
+    }
+    87% {
+      box-shadow: 0.2em -0.2em 0 0 currentcolor;
+    }
+  }
 }
 
 :root {
@@ -214,6 +242,43 @@
   --outline-purple-foreground: oklch(44.8% 0.119 310);
   --outline-red: oklch(96.2% 0.06 30);
   --outline-red-foreground: oklch(44.8% 0.16 30);
+}
+
+@layer components {
+  /* Loading ball */
+  .loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    transform: rotateZ(45deg);
+    perspective: 1000px;
+    /* Dùng màu mặc định của text làm màu loader */
+    color: inherit;
+  }
+
+  .loader:before,
+  .loader:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    transform: rotateX(70deg);
+    /* Gọi keyframe đã định nghĩa trong @theme */
+    animation: 1s loader-spin linear infinite;
+  }
+
+  .loader:after {
+    /* Sử dụng màu oklch của bạn hoặc màu từ theme Tailwind v4 */
+    color: oklch(62.3% 0.214 259.815);
+    transform: rotateY(70deg);
+    animation-delay: 0.4s;
+  }
 }
 
 @layer base {

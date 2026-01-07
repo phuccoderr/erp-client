@@ -16,6 +16,11 @@ export type Permission = {
   updated_at: number | null;
 };
 
+export type PermissionFieldSort = keyof Pick<
+  Permission,
+  "action" | "resource" | "path" | "description" | "created_at"
+>;
+
 export type CreatePermission = {
   name: string;
 

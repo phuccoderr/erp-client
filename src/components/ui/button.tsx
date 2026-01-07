@@ -10,7 +10,7 @@ const buttonVariants = cva(
     "gap-2 " + // Khoảng cách 0.5rem (8px) giữa các phần tử con (text và icon)
     "whitespace-nowrap " + // Ngăn text xuống dòng, giữ button trên một hàng
     "rounded-md " + // Bo góc trung bình (medium border radius)
-    "text-sm font-medium " + // Kích thước chữ nhỏ (14px) và độ đậm medium
+    "text-xs font-medium " + // Kích thước chữ nhỏ (14px) và độ đậm medium
     "transition-all " + // Hiệu ứng mượt mà cho mọi thay đổi (hover, focus,...)
     "disabled:pointer-events-none " + // Khi disabled: không nhận sự kiện click chuột
     "disabled:opacity-50 " + // Khi disabled: làm mờ 50%
@@ -75,5 +75,5 @@ function Button({
     />
   );
 }
-
+export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
 export { Button, buttonVariants };

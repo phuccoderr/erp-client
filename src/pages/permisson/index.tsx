@@ -10,38 +10,40 @@ import {
 import { LANG_KEY_CONST } from "@constants";
 import { useQueryPermissions } from "@hooks/permisson/use-query-permission.hook";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { type Permission } from "@types";
+import {
+  type FindAllPermission,
+  type Permission,
+  type PermissionFieldSort,
+} from "@types";
 import { CirclePlus, Edit3, Eye, FileDown, Trash2 } from "lucide-react";
 import { useState } from "react";
 import FormCreatePermission from "./components/form-create-permission.component";
 
 const PermissionPage = () => {
-  const [query, setQuery] = useState({
+  const [filters, setFilters] = useState<FindAllPermission>({
     page: 1,
     limit: 10,
-    pagination: false,
+    pagination: true,
+    order: undefined,
+    sort: undefined,
   });
-  const { data, refetch } = useQueryPermissions({
+  const [query, setQuery] = useState<FindAllPermission>({
+    page: 1,
+    limit: 10,
+    pagination: true,
+    sort: undefined,
+    order: undefined,
+  });
+  const { data, isFetching, refetch } = useQueryPermissions({
     page: query.page,
     limit: query.limit,
     pagination: query.pagination,
-    sort: "resource",
+    sort: query.sort,
+    order: query.order,
   });
 
   const columnHelper = createColumnHelper<Permission>();
   const columns: ColumnDef<Permission, any>[] = [
-    columnHelper.display({
-      id: "stt",
-      header: "STT",
-      size: 50,
-      cell: ({ row }) => {
-        if (query.pagination && data?.meta) {
-          const stt = (data?.meta.page - 1) * data.meta.limit + row.index + 1;
-          return <Typography>{stt}</Typography>;
-        }
-        return <Typography>{row.index + 1}</Typography>;
-      },
-    }),
     columnHelper.accessor("resource", {
       header: "Tài nguyên",
       size: 50,
@@ -82,6 +84,19 @@ const PermissionPage = () => {
     columnHelper.accessor("path", { header: "Đường dẫn" }),
   ];
 
+  const fieldSorts: Record<PermissionFieldSort, string> = {
+    resource: "Resource",
+    description: "Mô tả",
+    path: "Đường dẫn",
+    action: "Hành động",
+    created_at: "Ngày tạo",
+  };
+
+  const options = Object.entries(fieldSorts).map(([value, label]) => ({
+    value: value, // hoặc chỉ value nếu dùng as const
+    label,
+  }));
+
   return (
     <TanstackTable>
       <TanstackTableHeader title="Permission">
@@ -97,13 +112,44 @@ const PermissionPage = () => {
         <TanstackTableData
           data={data?.entities ?? []}
           columns={columns}
+          is_fetching={isFetching}
           is_pagination={query.pagination}
           meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
           onPageChange={(page) => {
             setQuery((prev) => ({ ...prev, page }));
           }}
-          pinning={["stt", "resource"]}
+          option_sorts={options}
+          pinning={["resource"]}
           onRefresh={refetch}
+          onChangeSort={(option) => {
+            const value = option.value as keyof Permission;
+            const order = option.order === "desc" ? "desc" : "asc";
+            setFilters((prev) => ({ ...prev, sort: value, order: order }));
+          }}
+          onInquire={(is_inquire) => {
+            console.log(is_inquire);
+            console.log("filter", filters);
+            if (is_inquire) {
+              setQuery(filters);
+              return;
+            }
+            setFilters({
+              page: 1,
+              limit: 10,
+              pagination: true,
+              sort: undefined,
+              order: undefined,
+              resource: undefined,
+            });
+            setQuery({
+              page: 1,
+              limit: 10,
+              pagination: true,
+              sort: undefined,
+              order: undefined,
+              resource: undefined,
+            });
+          }}
         />
       </TanstackTableContent>
     </TanstackTable>
