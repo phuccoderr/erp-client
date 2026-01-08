@@ -22,4 +22,12 @@ export const LANG_KEY_CONST = {
   TOOLTIP_REFRESH: "tooltip_refresh",
   FILTER: "filter",
   SORT: "sort",
+  EMPTY_TABLE_LIST: "empty_table_list",
+  SHOWING: "showing",
+  TO: "to",
+  OF: "of",
+  GO_TO_PAGE: "go_to_page",
+  TOOLTIP_GO_TO_PAGE: "tooltip_go_to_page",
+  INPUT_GO_TO_PAGE: "input_go_to_page",
+  ENTRIES: "entries",
 };

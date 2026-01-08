@@ -8,16 +8,24 @@ import {
   Typography,
 } from "@components/ui";
 import { LANG_KEY_CONST } from "@constants";
-import { useQueryPermissions } from "@hooks/permisson/use-query-permission.hook";
+import { useQueryPermissions } from "@hooks/permisson";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import {
   type FindAllPermission,
   type Permission,
   type PermissionFieldSort,
 } from "@types";
-import { CirclePlus, Edit3, Eye, FileDown, Trash2 } from "lucide-react";
+import {
+  ArrowUpDown,
+  CirclePlus,
+  Edit3,
+  Eye,
+  FileDown,
+  FileSearchCorner,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
-import FormCreatePermission from "./components/form-create-permission.component";
+import { FormCreatePermission } from "./components";
 
 const PermissionPage = () => {
   const [filters, setFilters] = useState<FindAllPermission>({
@@ -93,12 +101,10 @@ const PermissionPage = () => {
     created_at: "Ngày tạo",
   };
 
-  const options = Object.entries(fieldSorts).map(([value, label]) => ({
+  const primaryOptions = Object.entries(fieldSorts).map(([value, label]) => ({
     value: value, // hoặc chỉ value nếu dùng as const
     label,
   }));
-
-  console.log("qq", query);
 
   return (
     <TanstackTable>
@@ -124,21 +130,51 @@ const PermissionPage = () => {
           pinning={["resource"]}
           onRefresh={refetch}
           // Filter
-          sortOptions={options}
-          onApplySort={(option) => {
-            const sortBy = option.sortBy as keyof Permission;
-            const order = option.order === "desc" ? "desc" : "asc";
-            setQuery((prev) => ({ ...prev, sort: sortBy, order: order }));
-          }}
           filters={[
             {
+              type: "two-select",
+              icon: <ArrowUpDown />,
+              label: "Sắp xếp",
+              primaryValue: filters.sort,
+              primaryPlaceholder: "thuộc tính",
+              primaryOptions: primaryOptions,
+              onPrimaryChange: (value) => {
+                const sortBy = value as keyof Permission;
+                setFilters((prev) => ({
+                  ...prev,
+                  sort: sortBy,
+                }));
+              },
+              secondaryValue: filters.order,
+              secondaryPlaceholder: "Thứ tự",
+              secondaryOptions: [
+                { value: "asc", label: "tăng dần" },
+                { value: "desc", label: "giảm dần" },
+              ],
+              onSecondaryChange: (value) => {
+                const order = value === "desc" ? "desc" : "asc";
+                setFilters((prev) => ({
+                  ...prev,
+                  order,
+                }));
+              },
+              onApply: () => {
+                setQuery((prev) => ({
+                  ...prev,
+                  sort: filters.sort,
+                  order: filters.order,
+                }));
+              },
+            },
+            {
               type: "input",
-              label: "Tìm kiếm tài nguyên",
+              icon: <FileSearchCorner />,
+              label: "Tài nguyên",
               value: filters.resource ?? "",
+              placeholder: "tìm kiếm tài nguyên...",
               onChange: (resource) =>
                 setFilters((prev) => ({ ...prev, resource })),
               onApply: () => {
-                console.log(filters.resource);
                 setQuery((prev) => ({ ...prev, resource: filters.resource }));
               },
             },

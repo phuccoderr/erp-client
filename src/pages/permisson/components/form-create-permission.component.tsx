@@ -38,4 +38,4 @@ const FormCreatePermission = () => {
   );
 };
 
-export default FormCreatePermission;
+export { FormCreatePermission };

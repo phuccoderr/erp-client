@@ -14,7 +14,6 @@ import {
 } from "@tanstack/react-table";
 import {
   createContext,
-  useCallback,
   useState,
   type CSSProperties,
   type ReactNode,
@@ -43,8 +42,8 @@ import {
 import TanstackTableFilter, {
   type FilterItem,
   type ManageColumnItem,
-  type SortOption,
 } from "./tanstack-table-filter";
+import { LANG_KEY_CONST } from "@constants";
 
 const TanstackTableContext = createContext(null);
 
@@ -99,9 +98,7 @@ interface DataProps<TData> {
   onPageChange?: (page: number) => void;
   // Props Filter
   filters?: FilterItem[];
-  sortOptions?: SortOption[];
   onRefresh?: () => void;
-  onApplySort?: (sortField: { sortBy: string; order: string }) => void;
 }
 
 function TanstackTableData<TData>({
@@ -113,8 +110,6 @@ function TanstackTableData<TData>({
   pinning,
   onRefresh,
   onPageChange,
-  sortOptions,
-  onApplySort,
   filters,
 }: DataProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -175,35 +170,29 @@ function TanstackTableData<TData>({
   const from = data.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
 
-  const handleClickChangePage = useCallback(
-    (is_previous: boolean) => {
-      if (is_previous) {
-        if (isPagination) {
-          onPageChange?.(currentPage - 1);
-        } else {
-          table.previousPage();
-        }
-      } else {
-        if (isPagination) {
-          onPageChange?.(currentPage + 1);
-        } else {
-          table.nextPage();
-        }
-      }
-    },
-    [isPagination, onPageChange, currentPage, table]
-  );
-
-  const handlePageClick = useCallback(
-    (page: number) => {
+  const handleClickChangePage = (is_previous: boolean) => {
+    if (is_previous) {
       if (isPagination) {
-        onPageChange?.(page);
+        onPageChange?.(currentPage - 1);
       } else {
-        table.setPageIndex(page - 1);
+        table.previousPage();
       }
-    },
-    [isPagination, onPageChange, table]
-  );
+    } else {
+      if (isPagination) {
+        onPageChange?.(currentPage + 1);
+      } else {
+        table.nextPage();
+      }
+    }
+  };
+
+  const handlePageClick = (page: number) => {
+    if (isPagination) {
+      onPageChange?.(page);
+    } else {
+      table.setPageIndex(page - 1);
+    }
+  };
 
   const renderPageNumbers = () => {
     const pages = [];
@@ -225,37 +214,34 @@ function TanstackTableData<TData>({
     return pages;
   };
 
-  const handleGoToPage = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== "Enter") return;
+  const handleGoToPage = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
 
-      const input = e.target as HTMLInputElement;
-      const page = Number(input.value.trim());
+    const input = e.target as HTMLInputElement;
+    const page = Number(input.value.trim());
 
-      if (isNaN(page) || page < 1) {
-        input.value = "";
-        return;
-      }
+    if (isNaN(page) || page < 1) {
+      input.value = "";
+      return;
+    }
 
-      const maxPage = isPagination
-        ? meta?.total_pages ?? 1
-        : table.getPageCount();
+    const maxPage = isPagination
+      ? meta?.total_pages ?? 1
+      : table.getPageCount();
 
-      if (page > maxPage) {
-        input.value = maxPage.toString();
-        return;
-      }
+    if (page > maxPage) {
+      input.value = maxPage.toString();
+      return;
+    }
 
-      if (isPagination) {
-        onPageChange?.(page);
-      } else {
-        table.setPageIndex(page - 1);
-      }
+    if (isPagination) {
+      onPageChange?.(page);
+    } else {
+      table.setPageIndex(page - 1);
+    }
 
-      input.blur();
-    },
-    [isPagination, meta?.total_pages, onPageChange, table]
-  );
+    input.blur();
+  };
 
   const getCommonPinningStyles = (column: Column<TData>): CSSProperties => {
     const isPinned = column.getIsPinned();
@@ -304,9 +290,6 @@ function TanstackTableData<TData>({
         columns={manageColumns}
         isFetching={isFetching}
         onRefresh={onRefresh}
-        // Sort
-        sortOptions={sortOptions}
-        onApplySort={onApplySort}
         // Filer
         filters={filters}
       />
@@ -360,7 +343,7 @@ function TanstackTableData<TData>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {LANG_KEY_CONST.EMPTY_TABLE_LIST}
               </TableCell>
             </TableRow>
           )}
@@ -369,7 +352,8 @@ function TanstackTableData<TData>({
       {/* Footer */}
       <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
         <Typography className="text-xs flex-1">
-          Showing {from} to {to} of {total} {total === 1 ? "entry" : "entries"}
+          {LANG_KEY_CONST.SHOWING} {from} {LANG_KEY_CONST.TO} {to}
+          {LANG_KEY_CONST.OF} {total} {LANG_KEY_CONST.ENTRIES}
         </Typography>
         <ButtonGroup className="flex-1 flex justify-center">
           <ButtonGroup>
@@ -399,19 +383,23 @@ function TanstackTableData<TData>({
         </ButtonGroup>
         <div className="flex-1">
           <div className="flex justify-end gap-2 items-center">
-            <Typography className="text-xs">Go to Page</Typography>
+            <Typography className="text-xs">
+              {LANG_KEY_CONST.GO_TO_PAGE}
+            </Typography>
             <Tooltip>
               <TooltipTrigger>
                 <Input
                   type="number"
-                  placeholder="Page Number"
+                  placeholder={LANG_KEY_CONST.INPUT_GO_TO_PAGE}
                   min={1}
                   max={isPagination ? meta?.total_pages : table.getPageCount()}
                   className="w-28 rounded-sm p-2"
                   onKeyDown={handleGoToPage}
                 />
               </TooltipTrigger>
-              <TooltipContent>Nhập trang mong muốn → Enter</TooltipContent>
+              <TooltipContent>
+                {LANG_KEY_CONST.TOOLTIP_GO_TO_PAGE}
+              </TooltipContent>
             </Tooltip>
           </div>
         </div>

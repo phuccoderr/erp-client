@@ -1,11 +1,9 @@
 import {
   Button,
-  buttonVariants,
   Spinner,
   Typography,
   type ButtonVariantsProps,
 } from "@components/ui";
-import { cn } from "@lib";
 import { AnimatePresence, motion } from "motion/react";
 import { type ComponentProps } from "react";
 
@@ -48,18 +46,18 @@ const ButtonAnimated = ({
   size,
   variant,
 }: ButtonAnimatedProps) => {
-  const ButtonComponent = motion.create(Button, { forwardMotionProps: true });
+  const MotionButton = motion.create(Button);
   const mergedLabels = { ...defaultLabels, ...labels };
   const currentLabel = labels[status] ?? mergedLabels[status] ?? children;
 
   const loadingClass = status === "processing" ? "w-[110px]" : "";
 
   return (
-    <ButtonComponent
+    <MotionButton
       className={loadingClass}
       disabled={disabled}
       whileTap={{
-        scale: 1.2,
+        scale: 0.96,
       }}
       transition={{
         type: "spring",
@@ -85,7 +83,7 @@ const ButtonAnimated = ({
           {currentLabel}
         </motion.span>
       </AnimatePresence>
-    </ButtonComponent>
+    </MotionButton>
   );
 };
 

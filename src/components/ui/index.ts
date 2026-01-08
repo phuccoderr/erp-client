@@ -24,7 +24,7 @@ export * from "./sidebar";
 export * from "./skeleton";
 export * from "./spinner";
 export * from "./table";
-export * from "./tanstack-table/tanstack-table";
+export * from "./tanstack-table";
 export * from "./textarea";
 export * from "./toggle";
 export * from "./tooltip";

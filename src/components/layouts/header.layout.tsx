@@ -30,7 +30,7 @@ export const Header = () => {
           {theme === "light" ? <Sun /> : <MoonStar />}
         </Button>
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button size="icon" variant="outline">
               <User />
             </Button>
