@@ -1,89 +1,64 @@
 import {
-  Button,
+  buttonVariants,
   Spinner,
   Typography,
-  type ButtonVariantsProps,
+  type CopyButtonProps,
 } from "@components/ui";
+import { cn } from "@lib";
 import { AnimatePresence, motion } from "motion/react";
-import { type ComponentProps } from "react";
-
-export type ButtonAnimatedStatus = "default" | "processing" | "ok" | "error";
-
-interface ButtonAnimatedProps
-  extends ComponentProps<"button">,
-    ButtonVariantsProps {
-  status?: ButtonAnimatedStatus;
-  stiffness?: number;
-  damping?: number;
-  labels?: {
-    default?: React.ReactNode;
-    processing?: React.ReactNode;
-    ok?: React.ReactNode;
-    error?: React.ReactNode;
-  };
-}
-
-const defaultLabels = {
-  idle: "Submit",
-  processing: (
-    <div className="flex gap-1 justify-center items-center">
-      <Spinner />
-      <Typography>Processing...</Typography>
-    </div>
-  ),
-  ok: "Success ✓",
-  error: "Error ✗",
-};
 
 const ButtonAnimated = ({
-  status = "default",
-  labels = {},
-  stiffness = 300,
-  damping = 15,
+  className,
   children,
-  onClick,
-  disabled,
   size,
   variant,
-}: ButtonAnimatedProps) => {
-  const MotionButton = motion.create(Button);
-  const mergedLabels = { ...defaultLabels, ...labels };
-  const currentLabel = labels[status] ?? mergedLabels[status] ?? children;
-
-  const loadingClass = status === "processing" ? "w-[110px]" : "";
+  disabled,
+  ...props
+}: CopyButtonProps) => {
+  const {
+    onAnimationStart,
+    onAnimationComplete,
+    onAnimationEnd,
+    ...buttonProps
+  } = props as any;
+  const loadingClass = disabled ? "w-auto" : "";
 
   return (
-    <MotionButton
-      className={loadingClass}
-      disabled={disabled}
-      whileTap={{
-        scale: 0.96,
-      }}
+    <motion.button
       transition={{
         type: "spring",
-        stiffness: stiffness,
-        damping: damping,
+        stiffness: 300,
+        damping: 25,
       }}
-      layout
-      onClick={onClick}
-      // Button Origin
-      size={size}
-      variant={variant}
+      // Tắt hover/tap khi disabled
+      whileHover={disabled ? undefined : { scale: 1.1 }}
+      whileTap={disabled ? undefined : { scale: 0.95 }}
+      className={cn(
+        buttonVariants({ variant, size: disabled ? "default" : size }),
+        loadingClass,
+        className
+      )}
+      {...buttonProps}
     >
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={status}
-          initial={{ y: -10, opacity: 0 }}
+      <AnimatePresence mode="popLayout">
+        <motion.div
+          key={disabled ? "true" : "false"}
+          initial={{ y: -5, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 10, opacity: 0 }}
-          transition={{ duration: 0.15, ease: "easeOut" }}
-          layout
-          className="flex justify-center w-full"
+          exit={{ y: 5, opacity: 0 }}
+          transition={{ duration: 0.15, ease: "linear" }}
         >
-          {currentLabel}
-        </motion.span>
+          {disabled ? (
+            <div className="px-2 flex gap-1 items-center justify-center">
+              <Spinner />
+              <Typography>Processing...</Typography>
+            </div>
+          ) : (
+            children
+          )}
+        </motion.div>
       </AnimatePresence>
-    </MotionButton>
+    </motion.button>
   );
 };
 

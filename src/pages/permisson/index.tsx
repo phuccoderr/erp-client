@@ -4,6 +4,8 @@ import {
   TanstackTable,
   TanstackTableContent,
   TanstackTableData,
+  TanstackTableFilter,
+  TanstackTableFooter,
   TanstackTableHeader,
   Typography,
 } from "@components/ui";
@@ -24,21 +26,43 @@ import {
   FileSearchCorner,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FormCreatePermission } from "./components";
+import { FilterUtils } from "@utils";
+
+const ACTION_CONFIG: Record<
+  string,
+  {
+    icon: React.ElementType;
+    variant: "outline_red" | "outline_purple" | "outline" | "outline_green";
+  }
+> = {
+  get: { icon: Eye, variant: "outline" },
+  post: { icon: CirclePlus, variant: "outline_green" },
+  patch: { icon: Edit3, variant: "outline_purple" },
+  delete: { icon: Trash2, variant: "outline_red" },
+};
+
+const fieldSorts: Record<PermissionFieldSort, string> = {
+  resource: "Resource",
+  description: "Mô tả",
+  path: "Đường dẫn",
+  action: "Hành động",
+  created_at: "Ngày tạo",
+};
 
 const PermissionPage = () => {
   const [filters, setFilters] = useState<FindAllPermission>({
     page: 1,
     limit: 10,
-    pagination: true,
+    pagination: false,
     order: undefined,
     sort: undefined,
   });
   const [query, setQuery] = useState<FindAllPermission>({
     page: 1,
     limit: 10,
-    pagination: true,
+    pagination: false,
     sort: undefined,
     order: undefined,
   });
@@ -51,63 +75,72 @@ const PermissionPage = () => {
     resource: query.resource,
   });
 
-  const columnHelper = createColumnHelper<Permission>();
-  const columns: ColumnDef<Permission, any>[] = [
-    columnHelper.accessor("resource", {
-      header: "Tài nguyên",
-      size: 50,
-      enableHiding: false,
-    }),
-    columnHelper.accessor("action", {
-      header: "Hành động",
-      cell: ({ getValue }) => {
-        const ACTION_CONFIG: Record<
-          string,
-          {
-            icon: React.ElementType;
-            variant:
-              | "outline_red"
-              | "outline_purple"
-              | "outline"
-              | "outline_green";
-          }
-        > = {
-          get: { icon: Eye, variant: "outline" },
-          post: { icon: CirclePlus, variant: "outline_green" },
-          patch: { icon: Edit3, variant: "outline_purple" },
-          delete: { icon: Trash2, variant: "outline_red" },
-        };
+  const columns = useMemo<ColumnDef<Permission, any>[]>(() => {
+    const columnHelper = createColumnHelper<Permission>();
 
-        const config = ACTION_CONFIG[getValue()] ?? ACTION_CONFIG.get; // fallback an toàn về GET
+    return [
+      columnHelper.accessor("resource", {
+        header: "Tài nguyên",
+        size: 50,
+        enableHiding: false,
+      }),
+      columnHelper.accessor("action", {
+        header: "Hành động",
+        cell: ({ getValue }) => {
+          const value = getValue() as string;
+          const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
 
-        const Icon = config.icon;
-        return (
-          <Badge variant={config.variant} className="rounded-sm">
-            <Icon />
-            {getValue()}
-          </Badge>
-        );
-      },
-    }),
-    columnHelper.accessor("description", { header: "Mô tả" }),
-    columnHelper.accessor("path", { header: "Đường dẫn" }),
-  ];
+          const Icon = config.icon;
 
-  const fieldSorts: Record<PermissionFieldSort, string> = {
-    resource: "Resource",
-    description: "Mô tả",
-    path: "Đường dẫn",
-    action: "Hành động",
-    created_at: "Ngày tạo",
-  };
+          return (
+            <Badge variant={config.variant} className="rounded-sm">
+              <Icon className="h-3.5 w-3.5 mr-1" />
+              {value}
+            </Badge>
+          );
+        },
+      }),
+      columnHelper.accessor("description", { header: "Mô tả" }),
+      columnHelper.accessor("path", { header: "Đường dẫn" }),
+    ];
+  }, []);
 
-  const primaryOptions = Object.entries(fieldSorts).map(([value, label]) => ({
-    value: value, // hoặc chỉ value nếu dùng as const
-    label,
-  }));
+  const primaryOptions = useMemo(
+    () =>
+      Object.entries(fieldSorts).map(([value, label]) => ({
+        value,
+        label,
+      })),
+    []
+  );
+
+  const handlePageChange = useCallback((page: number) => {
+    setQuery((prev) => ({ ...prev, page }));
+  }, []);
+
+  const handleApplySort = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      sort: filters.sort,
+      order: filters.order,
+    }));
+  }, [filters.sort, filters.order]);
+
+  const handleApplyResource = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      resource: filters.resource,
+    }));
+  }, [filters.resource]);
 
   return (
-    <TanstackTable>
+    <TanstackTable
+      data={data?.entities ?? []}
+      columns={columns}
+      isPagination={query.pagination}
+      meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
+      pinning={["resource"]}
+    >
       <TanstackTableHeader title="Permission">
         <div className="flex gap-2">
           <Button variant="secondary">
@@ -118,16 +151,8 @@ const PermissionPage = () => {
         </div>
       </TanstackTableHeader>
       <TanstackTableContent>
-        <TanstackTableData
-          data={data?.entities ?? []}
-          columns={columns}
+        <TanstackTableFilter
           isFetching={isFetching}
-          isPagination={query.pagination}
-          meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
-          onPageChange={(page) => {
-            setQuery((prev) => ({ ...prev, page }));
-          }}
-          pinning={["resource"]}
           onRefresh={refetch}
           // Filter
           filters={[
@@ -135,6 +160,11 @@ const PermissionPage = () => {
               type: "two-select",
               icon: <ArrowUpDown />,
               label: "Sắp xếp",
+              state: FilterUtils.getSortState(
+                query.sort,
+                query.order,
+                fieldSorts
+              ),
               primaryValue: filters.sort,
               primaryPlaceholder: "thuộc tính",
               primaryOptions: primaryOptions,
@@ -158,28 +188,24 @@ const PermissionPage = () => {
                   order,
                 }));
               },
-              onApply: () => {
-                setQuery((prev) => ({
-                  ...prev,
-                  sort: filters.sort,
-                  order: filters.order,
-                }));
-              },
+              onApply: handleApplySort,
             },
             {
               type: "input",
               icon: <FileSearchCorner />,
+              key: "resource",
+              state: FilterUtils.getSearchState(query.resource, "tài nguyên"),
               label: "Tài nguyên",
               value: filters.resource ?? "",
               placeholder: "tìm kiếm tài nguyên...",
               onChange: (resource) =>
                 setFilters((prev) => ({ ...prev, resource })),
-              onApply: () => {
-                setQuery((prev) => ({ ...prev, resource: filters.resource }));
-              },
+              onApply: handleApplyResource,
             },
           ]}
         />
+        <TanstackTableData />
+        <TanstackTableFooter onPageChange={handlePageChange} />
       </TanstackTableContent>
     </TanstackTable>
   );

@@ -11,113 +11,85 @@ import {
   type ColumnDef,
   type ColumnPinningState,
   type SortingState,
+  type Table as TableState,
+  type HeaderGroup,
+  type Row,
+  type RowModel,
+  type Cell,
 } from "@tanstack/react-table";
 import {
   createContext,
+  useContext,
+  useMemo,
   useState,
   type CSSProperties,
   type ReactNode,
 } from "react";
-import {
-  ArrowDownWideNarrow,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowUpNarrowWide,
-} from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 import {
   Typography,
-  Button,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-  ButtonGroup,
-  Input,
 } from "@components/ui";
-import TanstackTableFilter, {
-  type FilterItem,
-  type ManageColumnItem,
-} from "./tanstack-table-filter";
 import { LANG_KEY_CONST } from "@constants";
 
-const TanstackTableContext = createContext(null);
-
-interface TanstackTableProps {
-  children: ReactNode;
-}
-
-function TanstackTable({ children }: Readonly<TanstackTableProps>) {
-  return (
-    <TanstackTableContext.Provider value={null}>
-      {children}
-    </TanstackTableContext.Provider>
-  );
-}
-
-interface HeaderProps {
-  children: ReactNode;
-  title?: string;
-}
-function TanstackTableHeader({ children, title }: HeaderProps) {
-  return (
-    <div className="flex justify-between items-center py-2">
-      <Typography variant="h4" className="flex-1">
-        {title}
-      </Typography>
-      <div className="flex items-end">{children}</div>
-    </div>
-  );
-}
-
-interface ContentProps {
-  children: ReactNode;
-}
-function TanstackTableContent({ children }: ContentProps) {
-  return <div className="border rounded-sm">{children}</div>;
-}
-
-interface DataProps<TData> {
-  columns: ColumnDef<TData>[];
-  pinning?: string[];
-  // Props query
-  data: TData[];
-  isFetching?: boolean;
+type TableContextType<TData> = TableState<TData> & {
+  dataLength: number;
+  isPagination: boolean;
   meta: {
     total: number;
     page: number;
     limit: number;
     total_pages: number;
   };
-  // Props Pagination
-  isPagination?: boolean;
-  onPageChange?: (page: number) => void;
-  // Props Filter
-  filters?: FilterItem[];
-  onRefresh?: () => void;
+};
+
+const TanstackTableContext = createContext<TableContextType<unknown> | null>(
+  null
+);
+
+function useTanstackTable() {
+  const context = useContext(TanstackTableContext);
+  if (!context) {
+    throw new Error(
+      "useTanstackTable must be used within a TanstackTableProvider."
+    );
+  }
+
+  return context;
 }
 
-function TanstackTableData<TData>({
+interface TanstackTableProps<TData> {
+  children: ReactNode;
+  data: TData[];
+  columns: ColumnDef<TData>[];
+  pinning?: string[];
+  isPagination?: boolean;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+}
+
+function TanstackTable<TData>({
+  children,
   data,
   columns,
-  isPagination = true,
-  isFetching = false,
-  meta,
   pinning,
-  onRefresh,
-  onPageChange,
-  filters,
-}: DataProps<TData>) {
+  isPagination = false,
+  meta,
+}: Readonly<TanstackTableProps<TData>>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
     left: pinning,
   });
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-
   const table = useReactTable({
     data,
     columns,
@@ -140,19 +112,19 @@ function TanstackTableData<TData>({
       size: 100,
     },
     getCoreRowModel: getCoreRowModel(),
-    // Pinning
-    onColumnPinningChange: setColumnPinning,
-    // Pagination
-    getPaginationRowModel: isPagination ? undefined : getPaginationRowModel(),
-    // Filter
-    getFilteredRowModel: isPagination ? undefined : getFilteredRowModel(),
-    // Sorting
-    getSortedRowModel: isPagination ? undefined : getSortedRowModel(),
-    onSortingChange: setSorting,
     // Visibility
     onColumnVisibilityChange: setColumnVisibility,
+    // Sorting
+    onSortingChange: setSorting,
+    // Pinning
+    onColumnPinningChange: setColumnPinning,
     // Expand
     getExpandedRowModel: getExpandedRowModel(),
+    // Filter
+    getFilteredRowModel: isPagination ? undefined : getFilteredRowModel(),
+    // Pagination
+    getPaginationRowModel: isPagination ? undefined : getPaginationRowModel(),
+    getSortedRowModel: isPagination ? undefined : getSortedRowModel(),
     getSubRows: (row: any) => row.children,
     // Client or Server
     manualPagination: isPagination,
@@ -160,90 +132,33 @@ function TanstackTableData<TData>({
     pageCount: isPagination ? meta.total_pages : undefined,
   });
 
-  const currentPage = isPagination
-    ? meta.page
-    : table.getState().pagination.pageIndex + 1;
-  const pageSize = isPagination
-    ? meta.limit
-    : table.getState().pagination.pageSize;
-  const total = isPagination ? meta.total : data.length;
-  const from = data.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const to = Math.min(currentPage * pageSize, total);
+  return (
+    <TanstackTableContext.Provider
+      value={{
+        isPagination,
+        meta,
+        dataLength: data.length,
+        ...(table as TableState<unknown>),
+      }}
+    >
+      {children}
+    </TanstackTableContext.Provider>
+  );
+}
 
-  const handleClickChangePage = (is_previous: boolean) => {
-    if (is_previous) {
-      if (isPagination) {
-        onPageChange?.(currentPage - 1);
-      } else {
-        table.previousPage();
-      }
-    } else {
-      if (isPagination) {
-        onPageChange?.(currentPage + 1);
-      } else {
-        table.nextPage();
-      }
-    }
-  };
+interface ContentProps {
+  children: ReactNode;
+}
+function TanstackTableContent({ children }: ContentProps) {
+  return <div className="border rounded-sm">{children}</div>;
+}
 
-  const handlePageClick = (page: number) => {
-    if (isPagination) {
-      onPageChange?.(page);
-    } else {
-      table.setPageIndex(page - 1);
-    }
-  };
+interface DataProps {}
 
-  const renderPageNumbers = () => {
-    const pages = [];
-    const totalPages = isPagination ? meta.total_pages : table.getPageCount();
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
+function TanstackTableData({}: DataProps) {
+  const { getHeaderGroups, getRowModel } = useTanstackTable();
 
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <Button
-          key={i}
-          onClick={() => handlePageClick(i)}
-          variant={i === currentPage ? "default" : "outline"}
-        >
-          {i}
-        </Button>
-      );
-    }
-    return pages;
-  };
-
-  const handleGoToPage = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter") return;
-
-    const input = e.target as HTMLInputElement;
-    const page = Number(input.value.trim());
-
-    if (isNaN(page) || page < 1) {
-      input.value = "";
-      return;
-    }
-
-    const maxPage = isPagination
-      ? meta?.total_pages ?? 1
-      : table.getPageCount();
-
-    if (page > maxPage) {
-      input.value = maxPage.toString();
-      return;
-    }
-
-    if (isPagination) {
-      onPageChange?.(page);
-    } else {
-      table.setPageIndex(page - 1);
-    }
-
-    input.blur();
-  };
-
-  const getCommonPinningStyles = (column: Column<TData>): CSSProperties => {
+  const getCommonPinningStyles = (column: Column<any>): CSSProperties => {
     const isPinned = column.getIsPinned();
     // const isLastLeftPinnedColumn =
     //   isPinned === "left" && column.getIsLastColumn("left");
@@ -260,157 +175,68 @@ function TanstackTableData<TData>({
     };
   };
 
-  const manageColumns: ManageColumnItem[] = table
-    .getAllLeafColumns()
-    .map((column) => ({
-      id: column.id,
-      isVisible: column.getIsVisible(),
-      canHide: column.getCanHide(),
-      onChecked: (checked) => {
-        column.toggleVisibility(!!checked);
-      },
-      label:
-        (column.columnDef.header as string) ?? column.id.replace(/_/g, " "),
-    }));
-
   return (
-    <>
-      {/* Filter */}
-      <TanstackTableFilter
-        checkedAll={table
-          .getAllColumns()
-          .every((column) => column.getIsVisible())}
-        onCheckedAll={(checked) => {
-          table.getAllLeafColumns().forEach((column) => {
-            if (column.getCanHide() !== false) {
-              column.toggleVisibility(!!checked);
-            }
-          });
-        }}
-        columns={manageColumns}
-        isFetching={isFetching}
-        onRefresh={onRefresh}
-        // Filer
-        filters={filters}
-      />
-      {/* Table */}
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  style={{ ...getCommonPinningStyles(header.column) }}
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  {header.isPlaceholder ? null : (
-                    <div className="flex items-center gap-2 ">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {{
-                        asc: <ArrowUpNarrowWide className="w-4 h-4" />,
-                        desc: <ArrowDownWideNarrow className="w-4 h-4" />,
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    style={{ ...getCommonPinningStyles(cell.column) }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-                {row.getIsExpanded() && (
-                  <tr>
-                    <td colSpan={row.getAllCells().length}></td>
-                  </tr>
+    <Table>
+      <TableHeader>
+        {getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead
+                key={header.id}
+                style={{ ...getCommonPinningStyles(header.column) }}
+                onClick={header.column.getToggleSortingHandler()}
+              >
+                {header.isPlaceholder ? null : (
+                  <div className="flex items-center gap-2 ">
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: <ArrowUpNarrowWide className="w-4 h-4" />,
+                      desc: <ArrowDownWideNarrow className="w-4 h-4" />,
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </div>
                 )}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {LANG_KEY_CONST.EMPTY_TABLE_LIST}
-              </TableCell>
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {getRowModel().rows.length !== 0 ? (
+          getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  style={{ ...getCommonPinningStyles(cell.column) }}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+
+              {/* Expanded subrow - chú ý đặt đúng vị trí: cùng cấp với TableRow chính, hoặc dùng Fragment */}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      {/* Footer */}
-      <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
-        <Typography className="text-xs flex-1">
-          {LANG_KEY_CONST.SHOWING} {from} {LANG_KEY_CONST.TO} {to}
-          {LANG_KEY_CONST.OF} {total} {LANG_KEY_CONST.ENTRIES}
-        </Typography>
-        <ButtonGroup className="flex-1 flex justify-center">
-          <ButtonGroup>
-            <Button
-              onClick={() => handleClickChangePage(true)}
-              disabled={currentPage === 1}
-              variant="outline"
-              size="icon-sm"
-              aria-label="Previous"
+          ))
+        ) : (
+          <TableRow>
+            <TableCell
+              colSpan={getRowModel().rows.length} // hoặc manageColumns.length nếu bạn quản lý columns riêng
+              className="h-24 text-center"
             >
-              <ArrowLeftIcon className="size-3" />
-            </Button>
-            {renderPageNumbers()}
-            <Button
-              onClick={() => handleClickChangePage(false)}
-              disabled={
-                currentPage ===
-                (isPagination ? meta.total_pages : table.getPageCount())
-              }
-              variant="outline"
-              size="icon-sm"
-              aria-label="Next"
-            >
-              <ArrowRightIcon className="size-3" />
-            </Button>
-          </ButtonGroup>
-        </ButtonGroup>
-        <div className="flex-1">
-          <div className="flex justify-end gap-2 items-center">
-            <Typography className="text-xs">
-              {LANG_KEY_CONST.GO_TO_PAGE}
-            </Typography>
-            <Tooltip>
-              <TooltipTrigger>
-                <Input
-                  type="number"
-                  placeholder={LANG_KEY_CONST.INPUT_GO_TO_PAGE}
-                  min={1}
-                  max={isPagination ? meta?.total_pages : table.getPageCount()}
-                  className="w-28 rounded-sm p-2"
-                  onKeyDown={handleGoToPage}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                {LANG_KEY_CONST.TOOLTIP_GO_TO_PAGE}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-      </div>
-    </>
+              {LANG_KEY_CONST.EMPTY_TABLE_LIST}
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 }
 
 export {
   TanstackTable,
-  TanstackTableHeader,
   TanstackTableContent,
   TanstackTableData,
+  useTanstackTable,
 };

@@ -1,6 +1,7 @@
 import {
   cloneElement,
   isValidElement,
+  useCallback,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -20,6 +21,7 @@ import {
   DropdownMenuTrigger,
   Input,
   ScrollArea,
+  ScrollBar,
   Select,
   SelectContent,
   SelectItem,
@@ -29,20 +31,41 @@ import {
   TooltipContent,
   TooltipTrigger,
   Typography,
+  useTanstackTable,
 } from "@components/ui";
-import { Ban, FunnelPlus, Grid2x2, RefreshCw, SearchCheck } from "lucide-react";
+import {
+  Ban,
+  FunnelPlus,
+  Grid2x2,
+  RefreshCw,
+  SearchCheck,
+  X,
+} from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
 import { ButtonAnimated } from "@components/animations";
+import { motion } from "motion/react";
 
-export interface SortOption {
+interface ManageColumnItem {
+  id: string;
+  isVisible: boolean;
+  canHide: boolean;
+  onChecked: (checked: boolean) => void;
+  label: string;
+}
+
+interface SortOption {
   value: string;
   label: string;
 }
 
 export interface FilterItem {
+  // base
   type: "two-select" | "select" | "input" | "custom";
   label: string;
+  state?: string | null;
+  key?: string;
   onApply?: () => void;
+  onClear?: (key: string) => void;
   render?: () => ReactNode;
   icon?: ReactElement;
   hasCanApply?: boolean;
@@ -52,30 +75,21 @@ export interface FilterItem {
   placeholder?: string;
   onChange?: (value: string) => void;
   // Props type two select
+  primaryKey?: string;
   primaryValue?: string;
   primaryPlaceholder?: string;
-  primaryOptions?: { value: string; label: string }[];
+  primaryOptions?: SortOption[];
   onPrimaryChange?: (value: string) => void;
+  secondaryKey?: string;
   secondaryValue?: string;
   secondaryPlaceholder?: string;
-  secondaryOptions?: { value: string; label: string }[];
+  secondaryOptions?: SortOption[];
   onSecondaryChange?: (value: string) => void;
 }
 
-export interface ManageColumnItem {
-  id: string;
-  isVisible: boolean;
-  canHide: boolean;
-  onChecked: (checked: boolean) => void;
-  label: string;
-}
-
 interface TanstackTableFilterProps {
+  // Props Filter
   filters?: FilterItem[];
-  // Props Manage Column
-  checkedAll?: boolean;
-  onCheckedAll?: (checked: boolean) => void;
-  columns?: ManageColumnItem[];
   // Props Refresh
   onRefresh?: () => void;
   isFetching: boolean;
@@ -83,97 +97,63 @@ interface TanstackTableFilterProps {
 
 const TanstackTableFilter = ({
   filters = [],
-  checkedAll,
-  onCheckedAll,
-  columns,
   onRefresh,
   isFetching = false,
 }: TanstackTableFilterProps) => {
+  const { getAllColumns, getAllLeafColumns } = useTanstackTable();
+
+  const manageColumns: ManageColumnItem[] = getAllLeafColumns().map(
+    (column) => ({
+      id: column.id,
+      isVisible: column.getIsVisible(),
+      canHide: column.getCanHide(),
+      onChecked: (checked) => {
+        column.toggleVisibility(!!checked);
+      },
+      label:
+        (column.columnDef.header as string) ?? column.id.replace(/_/g, " "),
+    })
+  );
+
+  const checkedAll = getAllColumns().every((column) => column.getIsVisible());
+  const handleCheckAll = (checked: boolean) => {
+    getAllLeafColumns().forEach((column) => {
+      if (column.getCanHide() !== false) {
+        column.toggleVisibility(!!checked);
+      }
+    });
+  };
   const hasFilters = filters.length > 0;
 
+  const renderActiveFilterBadges = useCallback(() => {
+    return filters
+      .filter((item) => item.state)
+      .map((item) => (
+        <motion.div
+          key={item.key ?? item.label}
+          whileHover={{ scale: 1.1, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.94, transition: { duration: 0.2 } }}
+          className="cursor-pointer inline-block"
+        >
+          <Badge variant="outline">
+            {item.state}
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              className=" transition-colors rounded-full hover:text-current"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </motion.div>
+      ));
+  }, [filters]);
   return (
     <div className="border-b flex justify-between items-center py-2 px-4">
-      {/* <InputGroup variant="outline" className="w-[20%] p-0 shadow-none">
-          <InputGroupInput
-            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            placeholder="Search..."
-          />
-          <InputGroupAddon className="p-0">
-            <SearchIcon />
-          </InputGroupAddon>
-        </InputGroup> */}
-      <div className="w-[70%]">
-        <ScrollArea className="h-30 flex flex-wrap gap-2">
-          {Array(50)
-            .fill(null)
-            .map((_, index) => (
-              <Badge variant={"outline"} key={index}>
-                Hello {index + 1}
-              </Badge>
-            ))}
-        </ScrollArea>
+      <div className="py-4 px-2 flex items-center gap-1.5 flex-wrap">
+        {renderActiveFilterBadges()}
       </div>
       <div className="flex gap-2 items-center">
-        {/* Refresh */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <ButtonAnimated
-              size="icon-sm"
-              variant="outline"
-              onClick={() => onRefresh?.()}
-              status={isFetching ? "processing" : "default"}
-              disabled={isFetching}
-            >
-              <RefreshCw />
-            </ButtonAnimated>
-          </TooltipTrigger>
-          <TooltipContent>
-            <Typography>{LANG_KEY_CONST.TOOLTIP_REFRESH}</Typography>
-          </TooltipContent>
-        </Tooltip>
-        {/* Manage Column */}
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon-sm" variant="outline">
-                  <Grid2x2 />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              {LANG_KEY_CONST.TOOLTIP_MANAGE_COLUMN}
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem
-              onSelect={(e) => e.preventDefault()}
-              checked={checkedAll}
-              onCheckedChange={onCheckedAll}
-              className={`${
-                checkedAll ? "focus:bg-outline" : "focus:bg-transparent"
-              } focus:text-primary text-xs`}
-            >
-              {LANG_KEY_CONST.SELECT_ALL}
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuSeparator />
-
-            {columns?.map((column) => (
-              <DropdownMenuCheckboxItem
-                className={`${
-                  column.isVisible ? "focus:bg-outline" : "focus:bg-transparent"
-                } focus:text-primary text-xs`}
-                key={`${column.id}-${column.isVisible}`}
-                disabled={!column.canHide}
-                checked={column.isVisible}
-                onCheckedChange={column.onChecked}
-                onSelect={(e) => e.preventDefault()}
-              >
-                {column.label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
         {/* Filter */}
         <DropdownMenu>
           <Tooltip>
@@ -318,9 +298,68 @@ const TanstackTableFilter = ({
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        {/* Refresh */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ButtonAnimated
+              size="icon-sm"
+              variant="outline"
+              onClick={() => onRefresh?.()}
+              disabled={isFetching}
+            >
+              <RefreshCw />
+            </ButtonAnimated>
+          </TooltipTrigger>
+          <TooltipContent>
+            <Typography>{LANG_KEY_CONST.TOOLTIP_REFRESH}</Typography>
+          </TooltipContent>
+        </Tooltip>
+        {/* Manage Column */}
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon-sm" variant="outline">
+                  <Grid2x2 />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              {LANG_KEY_CONST.TOOLTIP_MANAGE_COLUMN}
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end">
+            <DropdownMenuCheckboxItem
+              onSelect={(e) => e.preventDefault()}
+              checked={checkedAll}
+              onCheckedChange={(checked) => handleCheckAll(checked)}
+              className={`${
+                checkedAll ? "focus:bg-outline" : "focus:bg-transparent"
+              } focus:text-primary text-xs`}
+            >
+              {LANG_KEY_CONST.SELECT_ALL}
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+
+            {manageColumns?.map((column) => (
+              <DropdownMenuCheckboxItem
+                className={`${
+                  column.isVisible ? "focus:bg-outline" : "focus:bg-transparent"
+                } focus:text-primary text-xs`}
+                key={`${column.id}-${column.isVisible}`}
+                disabled={!column.canHide}
+                checked={column.isVisible}
+                onCheckedChange={column.onChecked}
+                onSelect={(e) => e.preventDefault()}
+              >
+                {column.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 };
 
-export default TanstackTableFilter;
+export { TanstackTableFilter };
