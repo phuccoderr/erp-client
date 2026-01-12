@@ -10,7 +10,6 @@ import {
   type Path,
 } from "react-hook-form";
 import { Field, FieldLabel } from "./field";
-import { Label } from "./label";
 import { Typography } from "./typography";
 
 interface CheckboxProps<TFieldValues extends FieldValues>

@@ -89,25 +89,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
     },
     [isPagination, onPageChange, setPageIndex]
   );
-  const pageButtons = useMemo(() => {
-    const pages: ReactNode[] = [];
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
 
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <Button
-          key={i}
-          onClick={() => handlePageClick(i)}
-          variant={i === currentPage ? "default" : "outline"}
-        >
-          {i}
-        </Button>
-      );
-    }
-
-    return pages;
-  }, [currentPage, totalPages, handlePageClick]);
   const handleGoToPage = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key !== "Enter") return;
@@ -137,13 +119,34 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
     },
     [isPagination, totalPages, onPageChange, setPageIndex]
   );
+
+  const pageButtons = useMemo(() => {
+    const pages: ReactNode[] = [];
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Button
+          key={i}
+          onClick={() => handlePageClick(i)}
+          variant={i === currentPage ? "default" : "outline"}
+        >
+          {i}
+        </Button>
+      );
+    }
+
+    return pages;
+  }, [currentPage, totalPages, handlePageClick]);
+
   return (
     <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
-      <Typography className="text-xs flex-1">
-        {LANG_KEY_CONST.SHOWING} {from} {LANG_KEY_CONST.TO} {to}
+      <Typography className="text-xs sm:flex-1 sm:flex hidden">
+        {LANG_KEY_CONST.SHOWING} {from} {LANG_KEY_CONST.TO} {to}{" "}
         {LANG_KEY_CONST.OF} {total} {LANG_KEY_CONST.ENTRIES}
       </Typography>
-      <ButtonGroup className="flex-1 flex justify-center">
+      <ButtonGroup className="flex-1 flex sm:justify-center justify-start">
         <ButtonGroup>
           <Button
             onClick={() => handleClickChangePage(true)}

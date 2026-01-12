@@ -10,7 +10,7 @@ const LayoutPage = () => {
       <Container>
         <Header />
         <Separator />
-        <div className="px-6 py-2">
+        <div className="px-4 py-2">
           <Outlet />
         </div>
       </Container>

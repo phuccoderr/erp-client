@@ -25,14 +25,7 @@ const ButtonAnimated = ({
 
   return (
     <motion.button
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-      }}
       // Tắt hover/tap khi disabled
-      whileHover={disabled ? undefined : { scale: 1.1 }}
-      whileTap={disabled ? undefined : { scale: 0.95 }}
       className={cn(
         buttonVariants({ variant, size: disabled ? "default" : size }),
         loadingClass,

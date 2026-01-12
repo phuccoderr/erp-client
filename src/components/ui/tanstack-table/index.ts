@@ -1,3 +1,4 @@
+export * from "./tanstack-table-data";
 export * from "./tanstack-table-filter";
 export * from "./tanstack-table-footer";
 export * from "./tanstack-table-header";

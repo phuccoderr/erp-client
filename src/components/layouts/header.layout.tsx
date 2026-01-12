@@ -16,7 +16,7 @@ export const Header = () => {
   const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <div className="flex justify-between p-6 py-2 items-center">
+    <div className="flex justify-between px-4 py-2 items-center">
       <Button
         className="justify-start"
         onClick={toggleSidebar}

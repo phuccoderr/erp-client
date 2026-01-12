@@ -2,11 +2,12 @@ import * as React from "react";
 
 import { cn } from "@lib";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({ className, ref, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-auto scrollbar h-122"
+      ref={ref}
     >
       <table
         data-slot="table"
@@ -68,7 +69,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "py-2 px-4 bg-table-header text-table-header-foreground text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "py-2 px-4 bg-table-header text-table-header-foreground text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] top-0",
         className
       )}
       {...props}
@@ -81,7 +82,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "py-2 px-4 bg-background align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "py-2 px-4 h-9 bg-background align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}

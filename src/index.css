@@ -281,6 +281,45 @@
   }
 }
 
+@layer utilities {
+  .scrollbar {
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      border-radius: 100vh;
+      background: #f7f4ed; /* light mode track */
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: oklch(62.3% 0.214 259.815 / 0.8);
+      border-radius: 100vh;
+      border: 3px solid #f6f7ed;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: oklch(62.3% 0.214 259.815 / 0.6);
+    }
+  }
+
+  .dark .scrollbar {
+    &::-webkit-scrollbar-track {
+      background: var(--muted);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: oklch(0.488 0.243 264.376); /* màu thumb đẹp trong dark */
+      border: 3px solid oklch(0.205 0 0);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: oklch(0.488 0.243 264.376 / 0.85);
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

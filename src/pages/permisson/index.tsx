@@ -1,17 +1,18 @@
 import {
   Badge,
-  Button,
   TanstackTable,
   TanstackTableContent,
   TanstackTableData,
   TanstackTableFilter,
   TanstackTableFooter,
   TanstackTableHeader,
-  Typography,
+  TanstackTableHeaderRight,
 } from "@components/ui";
-import { LANG_KEY_CONST } from "@constants";
 import { useQueryPermissions } from "@hooks/permisson";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  type AccessorKeyColumnDef,
+} from "@tanstack/react-table";
 import {
   type FindAllPermission,
   type Permission,
@@ -22,7 +23,6 @@ import {
   CirclePlus,
   Edit3,
   Eye,
-  FileDown,
   FileSearchCorner,
   Trash2,
 } from "lucide-react";
@@ -54,19 +54,19 @@ const fieldSorts: Record<PermissionFieldSort, string> = {
 const PermissionPage = () => {
   const [filters, setFilters] = useState<FindAllPermission>({
     page: 1,
-    limit: 10,
-    pagination: false,
+    limit: 15,
+    pagination: true,
     order: undefined,
     sort: undefined,
   });
   const [query, setQuery] = useState<FindAllPermission>({
     page: 1,
-    limit: 10,
-    pagination: false,
+    limit: 15,
+    pagination: true,
     sort: undefined,
     order: undefined,
   });
-  const { data, isFetching, refetch } = useQueryPermissions({
+  const { data, isFetching, isLoading, refetch } = useQueryPermissions({
     page: query.page,
     limit: query.limit,
     pagination: query.pagination,
@@ -75,35 +75,36 @@ const PermissionPage = () => {
     resource: query.resource,
   });
 
-  const columns = useMemo<ColumnDef<Permission, any>[]>(() => {
-    const columnHelper = createColumnHelper<Permission>();
+  const columnHelper = createColumnHelper<Permission>();
+  const columns: AccessorKeyColumnDef<Permission, string>[] = [
+    columnHelper.accessor("resource", {
+      header: "Tài nguyên",
+      size: 50,
+      enableHiding: false,
+    }),
+    columnHelper.accessor("action", {
+      header: "Hành động",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
 
-    return [
-      columnHelper.accessor("resource", {
-        header: "Tài nguyên",
-        size: 50,
-        enableHiding: false,
-      }),
-      columnHelper.accessor("action", {
-        header: "Hành động",
-        cell: ({ getValue }) => {
-          const value = getValue() as string;
-          const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
+        const Icon = config.icon;
 
-          const Icon = config.icon;
-
-          return (
-            <Badge variant={config.variant} className="rounded-sm">
-              <Icon className="h-3.5 w-3.5 mr-1" />
-              {value}
-            </Badge>
-          );
-        },
-      }),
-      columnHelper.accessor("description", { header: "Mô tả" }),
-      columnHelper.accessor("path", { header: "Đường dẫn" }),
-    ];
-  }, []);
+        return (
+          <Badge variant={config.variant} className="rounded-sm">
+            <Icon className="h-3.5 w-3.5 mr-1" />
+            {value}
+          </Badge>
+        );
+      },
+    }),
+    columnHelper.accessor("description", { header: "Mô tả" }),
+    columnHelper.accessor("path", { header: "Đường dẫn" }),
+  ];
+  const headers = columns.map((col) => ({
+    label: col.header as string,
+    key: col.accessorKey as string,
+  }));
 
   const primaryOptions = useMemo(
     () =>
@@ -142,13 +143,11 @@ const PermissionPage = () => {
       pinning={["resource"]}
     >
       <TanstackTableHeader title="Permission">
-        <div className="flex gap-2">
-          <Button variant="secondary">
-            <FileDown />
-            <Typography>{LANG_KEY_CONST.EXPORT}</Typography>
-          </Button>
+        <TanstackTableHeaderRight
+          csv={{ data: data?.entities ?? [], headers: headers }}
+        >
           <FormCreatePermission />
-        </div>
+        </TanstackTableHeaderRight>
       </TanstackTableHeader>
       <TanstackTableContent>
         <TanstackTableFilter
@@ -189,6 +188,18 @@ const PermissionPage = () => {
                 }));
               },
               onApply: handleApplySort,
+              onClear: () => {
+                setFilters((prev) => ({
+                  ...prev,
+                  sort: undefined,
+                  order: undefined,
+                }));
+                setQuery((prev) => ({
+                  ...prev,
+                  sort: undefined,
+                  order: undefined,
+                }));
+              },
             },
             {
               type: "input",
@@ -198,13 +209,25 @@ const PermissionPage = () => {
               label: "Tài nguyên",
               value: filters.resource ?? "",
               placeholder: "tìm kiếm tài nguyên...",
-              onChange: (resource) =>
-                setFilters((prev) => ({ ...prev, resource })),
+              onChange: (resource) => {
+                console.log("comn", resource);
+                setFilters((prev) => ({ ...prev, resource }));
+              },
               onApply: handleApplyResource,
+              onClear: () => {
+                setFilters((prev) => ({
+                  ...prev,
+                  resource: undefined,
+                }));
+                setQuery((prev) => ({
+                  ...prev,
+                  resource: undefined,
+                }));
+              },
             },
           ]}
         />
-        <TanstackTableData />
+        <TanstackTableData isLoading={isLoading} />
         <TanstackTableFooter onPageChange={handlePageChange} />
       </TanstackTableContent>
     </TanstackTable>
