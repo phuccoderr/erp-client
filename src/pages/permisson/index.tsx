@@ -77,7 +77,7 @@ const PermissionPage = () => {
       enableHiding: false,
     }),
     columnHelper.accessor("action", {
-      header: "Hành động",
+      header: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
       cell: ({ getValue }) => {
         const value = getValue() as string;
         const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
@@ -92,8 +92,12 @@ const PermissionPage = () => {
         );
       },
     }),
-    columnHelper.accessor("description", { header: "Mô tả" }),
-    columnHelper.accessor("path", { header: "Đường dẫn" }),
+    columnHelper.accessor("description", {
+      header: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
+    }),
+    columnHelper.accessor("path", {
+      header: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
+    }),
   ];
   const headers = columns.map((col) => ({
     label: col.header as string,

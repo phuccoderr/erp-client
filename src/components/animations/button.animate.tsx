@@ -30,6 +30,7 @@ const ButtonAnimated = ({
         loadingClass,
         className
       )}
+      disabled={disabled}
       {...buttonProps}
     >
       <AnimatePresence mode="popLayout">

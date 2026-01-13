@@ -7,6 +7,7 @@ import LayoutPage from "@pages/layout";
 import { ROUTE_CONST } from "@constants";
 import { rbacRouter } from "./rbac.router";
 import Loading from "@pages/system/loading";
+import ErrorLayout from "@pages/layout/components/error-layout.component";
 
 const router = createBrowserRouter(
   [
@@ -19,6 +20,7 @@ const router = createBrowserRouter(
           <LayoutPage />
         </ProtectedRouter>
       ),
+      errorElement: <ErrorLayout />,
       children: [
         {
           path: ROUTE_CONST.INDEX,
