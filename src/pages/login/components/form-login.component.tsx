@@ -1,5 +1,4 @@
 import {
-  Button,
   CardContent,
   CardDescription,
   CardHeader,
@@ -8,7 +7,6 @@ import {
   FieldGroup,
   FieldSet,
   Input,
-  Typography,
 } from "@components/ui";
 import { z } from "zod";
 import { LANG_KEY_CONST } from "@constants";
@@ -17,16 +15,21 @@ import { useCommandAuthLogin, useFormAuthLogin } from "@hooks/auth";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useQueryUserGetMe } from "@hooks/user";
 import { Card } from "@components/ui";
+import { useLang } from "@hooks/use-lang";
+import { ButtonAnimated } from "@components/animations";
+import { toast } from "sonner";
 
 const FormLogin = () => {
+  const { t } = useLang();
   const { data: me } = useQueryUserGetMe();
-  const { mutate: mutateLogin } = useCommandAuthLogin();
+  const { mutate: mutateLogin, isPending } = useCommandAuthLogin();
   const { schema: loginSchema, form: loginForm } = useFormAuthLogin();
   const navigate = useNavigate();
 
   const onSubmitLogin = async (values: z.infer<typeof loginSchema>) => {
     mutateLogin(values, {
       onSuccess: () => {
+        toast.success(t(LANG_KEY_CONST.AUTH_LOGIN_TOAST_LOGIN_SUCCESS));
         navigate("/", { replace: true });
       },
       onError: (err) => {
@@ -39,8 +42,10 @@ const FormLogin = () => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>{LANG_KEY_CONST.AUTH.LOGIN_TITLE}</CardTitle>
-        <CardDescription>{LANG_KEY_CONST.AUTH.LOGIN_SUBTITLE}</CardDescription>
+        <CardTitle>{t(LANG_KEY_CONST.AUTH_LOGIN_TITLE)}</CardTitle>
+        <CardDescription>
+          {t(LANG_KEY_CONST.AUTH_LOGIN_SUBTITLE)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={loginForm.handleSubmit(onSubmitLogin)}>
@@ -50,19 +55,27 @@ const FormLogin = () => {
                 isForm
                 control={loginForm.control}
                 name="email"
-                placeholder={LANG_KEY_CONST.AUTH.LOGIN_INPUT_PLACE_EMAIL}
+                placeholder={t(
+                  LANG_KEY_CONST.AUTH_LOGIN_INPUT_EMAIL_PLACEHOLDER
+                )}
               />
               <Input
                 isForm
                 control={loginForm.control}
                 name="password"
-                placeholder={LANG_KEY_CONST.AUTH.LOGIN_INPUT_PLACE_PASSWORD}
+                placeholder={t(
+                  LANG_KEY_CONST.AUTH_LOGIN_INPUT_PASSWORD_PLACEHOLDER
+                )}
               />
-              <Checkbox label={LANG_KEY_CONST.AUTH.LOGIN_CKCBOX_REMEMBER} />
+              <Checkbox label={t(LANG_KEY_CONST.AUTH_LOGIN_CKCBOX_LOGIN)} />
               <Field className="items-end">
-                <Button className="w-[30%]" type="submit">
-                  {LANG_KEY_CONST.AUTH.LOGIN_BTN_LOGIN}
-                </Button>
+                <ButtonAnimated
+                  disabled={isPending}
+                  className="w-[30%]"
+                  type="submit"
+                >
+                  {t(LANG_KEY_CONST.AUTH_LOGIN_BTN_LOGIN)}
+                </ButtonAnimated>
               </Field>
             </FieldGroup>
           </FieldSet>

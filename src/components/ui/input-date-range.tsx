@@ -122,7 +122,9 @@ const InputDateRange = ({ dateRange, onChange }: DateRangeProps) => {
         </InputGroup>
       </TooltipTrigger>
       <TooltipContent>
-        <Typography>{LANG_KEY_CONST.TOOLTIP_INPUT_DATE_RANGE}</Typography>
+        <Typography>
+          {LANG_KEY_CONST.COMMON_TOOLTIP_INPUT_DATE_RANGE}
+        </Typography>
       </TooltipContent>
     </Tooltip>
   );

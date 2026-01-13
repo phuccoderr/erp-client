@@ -1,7 +1,6 @@
 import {
   cloneElement,
   isValidElement,
-  useCallback,
   useMemo,
   useState,
   type ReactElement,
@@ -10,6 +9,9 @@ import {
 import {
   Badge,
   Button,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Dialog,
   DialogClose,
   DialogContainer,
@@ -42,16 +44,21 @@ import {
 } from "@components/ui";
 import {
   Ban,
+  ChevronsUpDown,
+  Funnel,
   FunnelPlus,
   Grid2x2,
   RefreshCw,
   SearchCheck,
   TextSearch,
+  Trash2,
   X,
 } from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
 import { ButtonAnimated } from "@components/animations";
 import { motion } from "motion/react";
+import { useLang } from "@hooks/use-lang";
+import { useIsMobile } from "@hooks/use-mobile";
 
 interface ManageColumnItem {
   id: string;
@@ -173,6 +180,8 @@ const TanstackTableFilter = ({
 }: TanstackTableFilterProps) => {
   const [openDropdownFilter, setOpenDropdownFilter] = useState(false);
   const { getAllColumns, getAllLeafColumns } = useTanstackTable();
+  const { t } = useLang();
+  const isMobile = useIsMobile();
 
   const manageColumns: ManageColumnItem[] = getAllLeafColumns().map(
     (column) => ({
@@ -195,6 +204,7 @@ const TanstackTableFilter = ({
       }
     });
   };
+
   const renderActiveFilterBadges = useMemo(() => {
     return filters
       .filter((item) => item.state)
@@ -232,7 +242,7 @@ const TanstackTableFilter = ({
               <DialogFooter className="">
                 <DialogClose asChild>
                   <Button variant={"outline"}>
-                    <Ban /> Cancel
+                    <Ban /> {t(LANG_KEY_CONST.COMMON_CANCEL)}
                   </Button>
                 </DialogClose>
                 <DialogClose asChild>
@@ -249,7 +259,7 @@ const TanstackTableFilter = ({
                     }}
                   >
                     <SearchCheck className="text-current" />
-                    Apply Filter
+                    {t(LANG_KEY_CONST.COMMON_APPLY_FILTER)}
                   </Button>
                 </DialogClose>
               </DialogFooter>
@@ -260,13 +270,87 @@ const TanstackTableFilter = ({
   }, [filters]);
 
   const hasFilters = filters.length > 0;
+  const length = filters.reduce(
+    (count, item) => count + (item.state ? 1 : 0),
+    0
+  );
 
   return (
     <>
       <div className="border-b flex justify-between items-center py-2 px-4">
-        <div className="flex items-center gap-2">
-          <TextSearch className="text-foreground" size={20} />
-          <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-4">
+          <Dialog>
+            <DialogTrigger>
+              <div className="relative inline-flex cursor-pointer">
+                <TextSearch className="text-foreground" size={20} />
+                {length > 0 && (
+                  <Badge
+                    variant="default"
+                    className="absolute -right-4 -top-1.5 h-4 min-w-4 rounded-full px-1 text-[8px]"
+                  >
+                    {length}+
+                  </Badge>
+                )}
+              </div>
+            </DialogTrigger>
+            <DialogContainer>
+              <DialogHeader>
+                <DialogTitle>
+                  <Funnel className="w-4 h-4 text-muted-foreground" />
+                  {t(LANG_KEY_CONST.COMMON_FILTER)}
+                </DialogTitle>
+              </DialogHeader>
+              <DialogContent className="flex flex-col gap-2">
+                {filters.map((item) => {
+                  if (!item.state) return;
+                  return (
+                    <Collapsible>
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="rounded-sm flex-1 min-h-8 justify-start"
+                          >
+                            {item.icon}
+                            {item.state.toLowerCase()}
+                            <ChevronsUpDown />
+                          </Badge>
+                          <Button
+                            variant="outline_red"
+                            size="icon-sm"
+                            onClick={() => item.onClear?.()}
+                          >
+                            <Trash2 />
+                          </Button>
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="flex flex-col gap-2 mt-2">
+                        {FilterContent(item)}
+                        <div className="flex justify-end">
+                          <Button
+                            disabled={
+                              item.value
+                                ? false
+                                : item.primaryValue && item.secondaryValue
+                                ? false
+                                : true
+                            }
+                            onClick={() => {
+                              item.onApply?.();
+                            }}
+                          >
+                            <SearchCheck className="text-current" />
+                            {t(LANG_KEY_CONST.COMMON_APPLY_FILTER)}
+                          </Button>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                })}
+              </DialogContent>
+            </DialogContainer>
+          </Dialog>
+          <div className={`sm:flex items-center gap-1.5 flex-wrap hidden`}>
             {renderActiveFilterBadges}
           </div>
         </div>
@@ -286,11 +370,13 @@ const TanstackTableFilter = ({
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                <Typography>{LANG_KEY_CONST.TOOLTIP_FILTER}</Typography>
+                <Typography>{t(LANG_KEY_CONST.COMMON_FILTER)}</Typography>
               </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{LANG_KEY_CONST.FILTER}</DropdownMenuLabel>
+            <DropdownMenuContent align={isMobile ? "start" : "end"}>
+              <DropdownMenuLabel>
+                {t(LANG_KEY_CONST.COMMON_FILTER)}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {hasFilters &&
                 filters.map((filter) => (
@@ -322,7 +408,7 @@ const TanstackTableFilter = ({
                             variant={"outline"}
                             onClick={() => setOpenDropdownFilter(false)}
                           >
-                            <Ban /> Cancel
+                            <Ban /> {t(LANG_KEY_CONST.COMMON_CANCEL)}
                           </Button>
                           <Button
                             disabled={
@@ -338,7 +424,7 @@ const TanstackTableFilter = ({
                             }}
                           >
                             <SearchCheck className="text-current" />
-                            Apply Filter
+                            {t(LANG_KEY_CONST.COMMON_APPLY_FILTER)}
                           </Button>
                         </div>
                       </DropdownMenuSubContent>
@@ -362,7 +448,9 @@ const TanstackTableFilter = ({
               </ButtonAnimated>
             </TooltipTrigger>
             <TooltipContent>
-              <Typography>{LANG_KEY_CONST.TOOLTIP_REFRESH}</Typography>
+              <Typography>
+                {t(LANG_KEY_CONST.COMMON_TOOLTIP_REFRESH)}
+              </Typography>
             </TooltipContent>
           </Tooltip>
           {/* Manage Column */}
@@ -376,7 +464,7 @@ const TanstackTableFilter = ({
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                {LANG_KEY_CONST.TOOLTIP_MANAGE_COLUMN}
+                {t(LANG_KEY_CONST.COMMON_TOOLTIP_MANAGE_COLUMN)}
               </TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end">
@@ -388,7 +476,7 @@ const TanstackTableFilter = ({
                   checkedAll ? "focus:bg-outline" : "focus:bg-transparent"
                 } focus:text-primary text-xs`}
               >
-                {LANG_KEY_CONST.SELECT_ALL}
+                {t(LANG_KEY_CONST.COMMON_BTN_SELECT_ALL)}
               </DropdownMenuCheckboxItem>
               <DropdownMenuSeparator />
 

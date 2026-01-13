@@ -119,7 +119,7 @@ const InputDate = ({ date, onChange }: InputDateProps) => {
         </InputGroup>
       </TooltipTrigger>
       <TooltipContent>
-        <Typography>{LANG_KEY_CONST.TOOLTIP_INPUT_DATE}</Typography>
+        <Typography>{LANG_KEY_CONST.COMMON_TOOLTIP_INPUT_DATE}</Typography>
       </TooltipContent>
     </Tooltip>
   );

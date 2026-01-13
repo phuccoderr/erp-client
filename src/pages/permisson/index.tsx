@@ -27,8 +27,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { FormCreatePermission } from "./components";
 import { FilterUtils } from "@utils";
+import { useLang } from "@hooks/use-lang";
+import { LANG_KEY_CONST } from "@constants";
 
 const ACTION_CONFIG: Record<
   string,
@@ -52,6 +53,7 @@ const fieldSorts: Record<PermissionFieldSort, string> = {
 };
 
 const PermissionPage = () => {
+  const { t } = useLang();
   const [filters, setFilters] = useState<FindAllPermission>({
     page: 1,
     limit: 15,
@@ -78,7 +80,7 @@ const PermissionPage = () => {
   const columnHelper = createColumnHelper<Permission>();
   const columns: AccessorKeyColumnDef<Permission, string>[] = [
     columnHelper.accessor("resource", {
-      header: "Tài nguyên",
+      header: t(LANG_KEY_CONST.PERMISSION_TABLE_HEADER_RESOURCE),
       size: 50,
       enableHiding: false,
     }),
@@ -142,12 +144,10 @@ const PermissionPage = () => {
       meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
       pinning={["resource"]}
     >
-      <TanstackTableHeader title="Permission">
+      <TanstackTableHeader title={t(LANG_KEY_CONST.PERMISSION)}>
         <TanstackTableHeaderRight
           csv={{ data: data?.entities ?? [], headers: headers }}
-        >
-          <FormCreatePermission />
-        </TanstackTableHeaderRight>
+        />
       </TanstackTableHeader>
       <TanstackTableContent>
         <TanstackTableFilter
@@ -158,14 +158,16 @@ const PermissionPage = () => {
             {
               type: "two-select",
               icon: <ArrowUpDown />,
-              label: "Sắp xếp",
+              label: t(LANG_KEY_CONST.COMMON_SORT),
               state: FilterUtils.getSortState(
                 query.sort,
                 query.order,
                 fieldSorts
               ),
               primaryValue: filters.sort,
-              primaryPlaceholder: "thuộc tính",
+              primaryPlaceholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
+                LANG_KEY_CONST.PERMISSION_TABLE_HEADER_RESOURCE
+              )}`,
               primaryOptions: primaryOptions,
               onPrimaryChange: (value) => {
                 const sortBy = value as keyof Permission;
@@ -175,10 +177,10 @@ const PermissionPage = () => {
                 }));
               },
               secondaryValue: filters.order,
-              secondaryPlaceholder: "Thứ tự",
+              secondaryPlaceholder: t(LANG_KEY_CONST.COMMON_ORDER),
               secondaryOptions: [
-                { value: "asc", label: "tăng dần" },
-                { value: "desc", label: "giảm dần" },
+                { value: "asc", label: t(LANG_KEY_CONST.COMMON_ASC) },
+                { value: "desc", label: t(LANG_KEY_CONST.COMMON_DESC) },
               ],
               onSecondaryChange: (value) => {
                 const order = value === "desc" ? "desc" : "asc";

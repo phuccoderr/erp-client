@@ -25,7 +25,6 @@ const ButtonAnimated = ({
 
   return (
     <motion.button
-      // Tắt hover/tap khi disabled
       className={cn(
         buttonVariants({ variant, size: disabled ? "default" : size }),
         loadingClass,

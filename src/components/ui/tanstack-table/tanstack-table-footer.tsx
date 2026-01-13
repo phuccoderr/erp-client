@@ -11,6 +11,7 @@ import {
 } from "@components/ui";
 import { LANG_KEY_CONST } from "@constants";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { useLang } from "@hooks/use-lang";
 
 interface TanstackTableFooterProps {
   onPageChange?: (page: number) => void;
@@ -27,6 +28,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
     isPagination,
     meta,
   } = useTanstackTable();
+  const { t } = useLang();
 
   const paginationInfo = useMemo(() => {
     const currentPage = isPagination
@@ -143,8 +145,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
   return (
     <div className="w-full flex items-center py-2 px-4 gap-2 border-t">
       <Typography className="text-xs sm:flex-1 sm:flex hidden">
-        {LANG_KEY_CONST.SHOWING} {from} {LANG_KEY_CONST.TO} {to}{" "}
-        {LANG_KEY_CONST.OF} {total} {LANG_KEY_CONST.ENTRIES}
+        {from} - {to} {t(LANG_KEY_CONST.TABLE_OF)} {total}
       </Typography>
       <ButtonGroup className="flex-1 flex sm:justify-center justify-start">
         <ButtonGroup>
@@ -174,20 +175,24 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
       <div className="flex-1">
         <div className="flex justify-end gap-2 items-center">
           <Typography className="text-xs">
-            {LANG_KEY_CONST.GO_TO_PAGE}
+            {t(LANG_KEY_CONST.TABLE_GO_TO_PAGE)}
           </Typography>
           <Tooltip>
             <TooltipTrigger>
               <Input
                 type="number"
-                placeholder={LANG_KEY_CONST.INPUT_GO_TO_PAGE}
+                placeholder={t(
+                  LANG_KEY_CONST.TABLE_INPUT_GO_TO_PAGE_PLACEHOLDER
+                )}
                 min={1}
                 max={isPagination ? meta?.total_pages : getPageCount()}
                 className="w-28 rounded-sm p-2"
                 onKeyDown={handleGoToPage}
               />
             </TooltipTrigger>
-            <TooltipContent>{LANG_KEY_CONST.TOOLTIP_GO_TO_PAGE}</TooltipContent>
+            <TooltipContent>
+              {t(LANG_KEY_CONST.TABLE_TOOLTIP_GO_TO_PAGE)}
+            </TooltipContent>
           </Tooltip>
         </div>
       </div>

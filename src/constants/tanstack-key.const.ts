@@ -4,4 +4,6 @@ export const TANSTACK_KEY_CONST = {
   LOGIN_USER: "login_users",
   QUERY_PERMISSION: "query_permissons",
   COMMAND_PERMISSION: "command_permissions",
+
+  QUERY_LANG: "query_langs",
 };

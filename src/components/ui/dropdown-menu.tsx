@@ -274,6 +274,7 @@ function DropdownMenuSubTrigger({
 
 function DropdownMenuSubContent({
   className,
+
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (

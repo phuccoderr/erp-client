@@ -1,7 +1,6 @@
 import { COOKIE_CONST } from "@constants";
-import type { ResponseERP } from "@types";
 import { CookieStorageUtil } from "@utils";
-import axios, { type AxiosResponse } from "axios";
+import axios from "axios";
 
 const http = axios.create({
   headers: {

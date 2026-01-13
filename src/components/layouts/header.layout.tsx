@@ -1,4 +1,4 @@
-import { BellDotIcon, Menu, MoonStar, Sun, User } from "lucide-react";
+import { Menu, MoonStar, Sun, User } from "lucide-react";
 import {
   Button,
   DropdownMenu,
@@ -10,10 +10,24 @@ import {
   useSidebar,
 } from "@components/ui";
 import { useThemeStore } from "@stores";
+import { useNavigate } from "react-router-dom";
+import { CookieStorageUtil, queryClient } from "@utils";
+import { COOKIE_CONST, LANG_KEY_CONST, ROUTE_CONST } from "@constants";
+import { toast } from "sonner";
+import { useLang } from "@hooks/use-lang";
 
 export const Header = () => {
   const { toggleSidebar } = useSidebar();
   const { theme, toggleTheme } = useThemeStore();
+  const { t } = useLang();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    CookieStorageUtil.delete(COOKIE_CONST.SESSION);
+    queryClient.clear();
+    toast.success(t(LANG_KEY_CONST.COMMON_LOGOUT));
+    navigate(ROUTE_CONST.LOGIN);
+  };
 
   return (
     <div className="flex justify-between px-4 py-2 items-center">
@@ -38,7 +52,9 @@ export const Header = () => {
           <DropdownMenuContent side="bottom" align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              {t(LANG_KEY_CONST.COMMON_LOGOUT)}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

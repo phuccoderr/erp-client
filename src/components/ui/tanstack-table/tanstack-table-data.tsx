@@ -12,12 +12,14 @@ import {
 } from "@components/ui";
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 import { LANG_KEY_CONST } from "@constants";
+import { useLang } from "@hooks/use-lang";
 
 interface TanstackTableDataProps {
   isLoading?: boolean;
 }
 
 function TanstackTableData({ isLoading = false }: TanstackTableDataProps) {
+  const { t } = useLang();
   const tableContainerRef = useRef<HTMLTableElement>(null);
   const { getHeaderGroups, getRowModel, getAllColumns } = useTanstackTable();
   const [scrollPosition, setScrollPosition] = useState(false);
@@ -135,7 +137,7 @@ function TanstackTableData({ isLoading = false }: TanstackTableDataProps) {
               colSpan={getAllColumns().length}
               className="h-24 text-center"
             >
-              {LANG_KEY_CONST.EMPTY_TABLE_LIST}
+              {t(LANG_KEY_CONST.TABLE_LIST_EMPTY)}
             </TableCell>
           </TableRow>
         )}

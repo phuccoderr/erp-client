@@ -1,5 +1,4 @@
 import {
-  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -7,30 +6,12 @@ import {
   getSortedRowModel,
   useReactTable,
   type VisibilityState,
-  type Column,
   type ColumnPinningState,
   type SortingState,
   type Table as TableState,
   type AccessorKeyColumnDef,
 } from "@tanstack/react-table";
-import {
-  createContext,
-  useContext,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
-import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
-import {
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@components/ui";
-import { LANG_KEY_CONST } from "@constants";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type TableContextType<TData> = TableState<TData> & {
   dataLength: number;

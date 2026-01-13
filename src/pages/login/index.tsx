@@ -14,8 +14,8 @@ const LoginPage = () => {
     root.classList.add(theme);
   }, []);
   return (
-    <Container className="flex justify-between gap-2 min-h-screen py-4">
-      <div className="hidden lg:flex lg:flex-1">
+    <Container className="flex justify-between gap-2 px-4">
+      <div className="hidden sm:flex sm:flex-1">
         <CarouselLoginComponent />
       </div>
       <div className="flex-1 flex justify-center items-center">

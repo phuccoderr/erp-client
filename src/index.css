@@ -290,7 +290,7 @@
 
     &::-webkit-scrollbar-track {
       border-radius: 100vh;
-      background: #f7f4ed; /* light mode track */
+      background: var(--muted);
     }
 
     &::-webkit-scrollbar-thumb {

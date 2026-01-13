@@ -74,7 +74,7 @@ export const Typography = ({
       <p
         className={cn(
           basedClassName,
-          "text-muted-foreground text-sm",
+          "text-muted-foreground text-xs",
           className
         )}
       >

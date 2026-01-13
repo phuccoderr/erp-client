@@ -12,6 +12,7 @@ import { CSVLink } from "react-csv";
 import { LANG_KEY_CONST } from "@constants";
 import { FileDown } from "lucide-react";
 import { PermissionApi } from "@apis";
+import { useLang } from "@hooks/use-lang";
 
 interface HeaderProps {
   children: ReactNode;
@@ -29,7 +30,7 @@ const TanstackTableHeader = ({ children, title }: HeaderProps) => {
 };
 
 interface HeaderRightProps {
-  children: ReactNode;
+  children?: ReactNode;
   csv?: {
     fileName?: string;
     data: any[];
@@ -40,6 +41,7 @@ const TanstackTableHeaderRight = ({
   children,
   csv = { data: [], headers: [], fileName: "base.csv" },
 }: HeaderRightProps) => {
+  const { t } = useLang();
   const [loadingCSV, setLoadingCSV] = useState(false);
   const [allData, setAllData] = useState([]);
   const csvInstance = useRef<any | null>(null);
@@ -85,7 +87,7 @@ const TanstackTableHeaderRight = ({
               ) : (
                 <Fragment>
                   <FileDown />
-                  <Typography>{LANG_KEY_CONST.EXPORT}</Typography>
+                  <Typography>{t(LANG_KEY_CONST.COMMON_BTN_EXPORT)}</Typography>
                 </Fragment>
               )}
             </Button>
@@ -98,7 +100,7 @@ const TanstackTableHeaderRight = ({
               headers={csv.headers}
               filename={csv.fileName}
             >
-              Export Page
+              {t(LANG_KEY_CONST.TABLE_EXPORT_PAGE)}
             </CSVLink>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -107,7 +109,7 @@ const TanstackTableHeaderRight = ({
               asyncExportAll();
             }}
           >
-            Export All
+            {t(LANG_KEY_CONST.TABLE_EXPORT_ALL)}
           </DropdownMenuItem>
           {allData && (
             <CSVLink
