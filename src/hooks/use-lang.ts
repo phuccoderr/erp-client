@@ -21,6 +21,7 @@ export const useLang = () => {
   return {
     t,
     lang,
+    data,
     isLoading,
   };
 };

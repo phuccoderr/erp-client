@@ -18,7 +18,12 @@ createRoot(document.getElementById("root")!).render(
         <LangProvider>
           <ThemeProvider>
             <RouterProvider router={router} />
-            <ToasterSonner position="top-right" richColors expand={false} />
+            <ToasterSonner
+              duration={1.5}
+              position="top-right"
+              richColors
+              expand={false}
+            />
           </ThemeProvider>
         </LangProvider>
       </LazyMotion>

@@ -11,10 +11,10 @@ export const LANG_KEY_CONST = {
   AUTH_LOGIN_TOAST_LOGIN_SUCCESS: "auth_login_toast_login_success",
 
   PERMISSION_TITLE: "permission_title",
-  PERMISSION_TABLE_HEADER_RESOURCE: "permission_table_header_resource",
-  PERMISSION_TABLE_HEADER_ACTION: "permission_table_header_action",
-  PERMISSION_TABLE_HEADER_DESCRIPTION: "permission_table_header_description",
-  PERMISSION_TABLE_HEADER_PATH: "permission_table_header_path",
+  PERMISSION_FIELD_RESOURCE: "permission_field_resource",
+  PERMISSION_FIELD_ACTION: "permission_field_action",
+  PERMISSION_FIELD_DESCRIPTION: "permission_field_description",
+  PERMISSION_FIELD_PATH: "permission_field_path",
 
   COMMON_BTN_EXPORT: "common_btn_export",
   COMMON_BTN_SELECT_ALL: "common_btn_select_all",
@@ -34,6 +34,8 @@ export const LANG_KEY_CONST = {
   COMMON_CANCEL: "common_cancel",
   COMMON_SEARCH: "common_search",
   COMMON_ORDER: "common_order",
+  COMMON_CREATED_AT: "common_created_at",
+  COMMON_FIELD: "common_field",
 
   TABLE_LIST_EMPTY: "table_list_empty",
   TABLE_OF: "table_of",

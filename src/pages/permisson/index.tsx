@@ -44,16 +44,8 @@ const ACTION_CONFIG: Record<
   delete: { icon: Trash2, variant: "outline_red" },
 };
 
-const fieldSorts: Record<PermissionFieldSort, string> = {
-  resource: "Resource",
-  description: "Mô tả",
-  path: "Đường dẫn",
-  action: "Hành động",
-  created_at: "Ngày tạo",
-};
-
 const PermissionPage = () => {
-  const { t } = useLang();
+  const { t, data: dataLang } = useLang();
   const [filters, setFilters] = useState<FindAllPermission>({
     page: 1,
     limit: 15,
@@ -80,7 +72,7 @@ const PermissionPage = () => {
   const columnHelper = createColumnHelper<Permission>();
   const columns: AccessorKeyColumnDef<Permission, string>[] = [
     columnHelper.accessor("resource", {
-      header: t(LANG_KEY_CONST.PERMISSION_TABLE_HEADER_RESOURCE),
+      header: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
       size: 50,
       enableHiding: false,
     }),
@@ -107,6 +99,13 @@ const PermissionPage = () => {
     label: col.header as string,
     key: col.accessorKey as string,
   }));
+  const fieldSorts: Record<PermissionFieldSort, string> = {
+    resource: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
+    description: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
+    path: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
+    action: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
+    created_at: t(LANG_KEY_CONST.COMMON_CREATED_AT),
+  };
 
   const primaryOptions = useMemo(
     () =>
@@ -114,7 +113,7 @@ const PermissionPage = () => {
         value,
         label,
       })),
-    []
+    [dataLang]
   );
 
   const handlePageChange = useCallback((page: number) => {
@@ -165,9 +164,7 @@ const PermissionPage = () => {
                 fieldSorts
               ),
               primaryValue: filters.sort,
-              primaryPlaceholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
-                LANG_KEY_CONST.PERMISSION_TABLE_HEADER_RESOURCE
-              )}`,
+              primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
               primaryOptions: primaryOptions,
               onPrimaryChange: (value) => {
                 const sortBy = value as keyof Permission;
@@ -207,10 +204,15 @@ const PermissionPage = () => {
               type: "input",
               icon: <FileSearchCorner />,
               key: "resource",
-              state: FilterUtils.getSearchState(query.resource, "tài nguyên"),
-              label: "Tài nguyên",
+              state: FilterUtils.getSearchState(
+                query.resource,
+                t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE)
+              ),
+              label: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
               value: filters.resource ?? "",
-              placeholder: "tìm kiếm tài nguyên...",
+              placeholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
+                LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE
+              )}`,
               onChange: (resource) => {
                 console.log("comn", resource);
                 setFilters((prev) => ({ ...prev, resource }));
