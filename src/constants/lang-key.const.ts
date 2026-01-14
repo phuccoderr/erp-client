@@ -45,6 +45,14 @@ export const LANG_KEY_CONST = {
   TABLE_TOOLTIP_GO_TO_PAGE: "table_tooltip_go_to_page",
   TABLE_INPUT_GO_TO_PAGE_PLACEHOLDER: "table_input_go_to_page_placeholder",
 
+  MENU_RBAC: "menu_rbac",
+  MENU_RBAC_PERMISSION: "menu_rbac_permission",
+  MENU_RBAC_ROLE: "menu_rbac_role",
+  MENU_RBAC_USER: "menu_rbac_user",
+  MENU_SETTING: "menu_setting",
+  MENU_SETTING_LANG: "menu_setting_lang",
+  MENU_DASHBOARD: "menu_dashboard",
+
   PERMISSION: "permission",
   LANG: "lang",
   USER: "user",

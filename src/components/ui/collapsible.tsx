@@ -24,7 +24,7 @@ function CollapsibleContent({
   return (
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
-      className={cn("mt-3", props.className)}
+      className={cn("mt-1", props.className)}
       {...props}
     />
   );

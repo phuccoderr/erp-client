@@ -1,4 +1,7 @@
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Image,
   Sidebar,
   SidebarContent,
@@ -9,42 +12,123 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  Typography,
   useSidebar,
 } from "@components/ui";
 import logo from "@assets/images/logo.png";
 import icon from "@assets/images/icon.png";
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  ChevronRight,
+  CircleUser,
+  Home,
+  KeyRound,
+  ShieldUser,
+} from "lucide-react";
+import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useLang } from "@hooks/use-lang";
+import { LANG_KEY_CONST, ROUTE_CONST } from "@constants";
 
-const items = [
+type Item = {
+  title: string;
+  url?: string;
+  icon?: ReactNode;
+  tooltip?: string;
+  children?: Item[];
+};
+
+type GroupItem = {
+  name: string;
+  items: Item[];
+};
+
+const groupSidebar: GroupItem[] = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
+    name: LANG_KEY_CONST.MENU_DASHBOARD,
+    items: [
+      {
+        title: "Dashboard",
+        url: "#",
+        icon: <Home />,
+      },
+    ],
   },
   {
-    title: "Permission",
-    url: "/rbac/permissions",
-    icon: Inbox,
+    name: LANG_KEY_CONST.MENU_RBAC,
+    items: [
+      {
+        title: LANG_KEY_CONST.MENU_RBAC_USER,
+        url: "#",
+        icon: <CircleUser />,
+      },
+
+      {
+        title: LANG_KEY_CONST.MENU_RBAC_ROLE,
+        url: "#",
+        icon: <ShieldUser />,
+      },
+      {
+        title: LANG_KEY_CONST.MENU_RBAC_PERMISSION,
+        url: ROUTE_CONST.RBAC.PERMISSON,
+        icon: <KeyRound />,
+      },
+    ],
   },
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    name: LANG_KEY_CONST.MENU_SETTING,
+    items: [],
   },
 ];
 
+const Tree = ({ item }: { item: Item }) => {
+  const path = useLocation();
+  const { t } = useLang();
+
+  if (!item.children?.length) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          tooltip={"wtf"}
+          isActive={item.url === path.pathname}
+          asChild
+        >
+          <a href={item.url}>
+            {item.icon}
+            <Typography>{t(item.title)}</Typography>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <Collapsible className="group/collapsible" defaultOpen={false}>
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton>
+            {item.icon}
+            <Typography>{item.title}</Typography>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.children.map((child) => (
+              <Tree key={child.title} item={child} />
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+};
+
 export const AppSidebar = () => {
-  const { open } = useSidebar();
+  const { open, state } = useSidebar();
+  const { t } = useLang();
+  const isCollapsed = state === "collapsed";
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex-row">
@@ -64,23 +148,20 @@ export const AppSidebar = () => {
         />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groupSidebar.map((group) => (
+          <SidebarGroup key={group.name}>
+            <SidebarGroupLabel>
+              {isCollapsed ? "..." : t(group.name)}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <Tree key={item.title} item={item}></Tree>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </Sidebar>
   );
