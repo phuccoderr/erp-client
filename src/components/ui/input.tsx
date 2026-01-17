@@ -22,7 +22,6 @@ function Input<TFieldValues extends FieldValues>({
   control,
   label,
   id,
-  placeholder,
   className,
   type,
   ...props
@@ -48,7 +47,6 @@ function Input<TFieldValues extends FieldValues>({
               className={cn(basedClassName, className)}
               id={id || name}
               aria-invalid={fieldState.invalid}
-              placeholder={placeholder}
               {...props}
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -63,7 +61,6 @@ function Input<TFieldValues extends FieldValues>({
       type={type}
       data-slot="input"
       className={cn(basedClassName, className)}
-      placeholder={placeholder}
       {...props}
     />
   );

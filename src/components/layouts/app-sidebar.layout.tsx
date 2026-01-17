@@ -26,7 +26,7 @@ import {
   ShieldUser,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useLang } from "@hooks/use-lang";
 import { LANG_KEY_CONST, ROUTE_CONST } from "@constants";
 
@@ -65,7 +65,7 @@ const groupSidebar: GroupItem[] = [
 
       {
         title: LANG_KEY_CONST.MENU_RBAC_ROLE,
-        url: "#",
+        url: ROUTE_CONST.RBAC.ROLE,
         icon: <ShieldUser />,
       },
       {
@@ -85,7 +85,7 @@ const Tree = ({ item }: { item: Item }) => {
   const path = useLocation();
   const { t } = useLang();
 
-  if (!item.children?.length) {
+  if (!item.children?.length && item.url) {
     return (
       <SidebarMenuItem>
         <SidebarMenuButton
@@ -93,10 +93,10 @@ const Tree = ({ item }: { item: Item }) => {
           isActive={item.url === path.pathname}
           asChild
         >
-          <a href={item.url}>
+          <NavLink to={item.url}>
             {item.icon}
             <Typography>{t(item.title)}</Typography>
-          </a>
+          </NavLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
@@ -114,7 +114,7 @@ const Tree = ({ item }: { item: Item }) => {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {item.children.map((child) => (
+            {item.children?.map((child) => (
               <Tree key={child.title} item={child} />
             ))}
           </SidebarMenuSub>

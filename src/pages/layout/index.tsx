@@ -1,5 +1,5 @@
 import { AppSidebar, Container, Header } from "@components/layouts";
-import { Separator, SidebarProvider } from "@components/ui";
+import { SidebarProvider } from "@components/ui";
 
 import { Outlet } from "react-router-dom";
 
@@ -9,7 +9,6 @@ const LayoutPage = () => {
       <AppSidebar />
       <Container>
         <Header />
-        <Separator />
         <div className="px-4 py-2">
           <Outlet />
         </div>

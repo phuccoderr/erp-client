@@ -19,7 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <ThemeProvider>
             <RouterProvider router={router} />
             <ToasterSonner
-              duration={1.5}
+              duration={2000}
               position="top-right"
               richColors
               expand={false}

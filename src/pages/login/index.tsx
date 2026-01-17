@@ -1,5 +1,5 @@
 import { Container } from "@components/layouts";
-import CarouselLoginComponent from "@pages/login/components/carousel-login.component";
+import CarouselLoginComponent from "./components/carousel-login.component";
 import FormLogin from "./components/form-login.component";
 import { useThemeStore } from "@stores";
 import { useEffect } from "react";

@@ -16,6 +16,14 @@ export const LANG_KEY_CONST = {
   PERMISSION_FIELD_DESCRIPTION: "permission_field_description",
   PERMISSION_FIELD_PATH: "permission_field_path",
 
+  ROLE_BTN_ADD: "role_btn_add",
+  ROLE_INPUT_NAME_TITLE: "role_input_name_title",
+  ROLE_INPUT_NAME_PLACEHOLDER: "role_input_name_placeholder",
+  ROLE_INPUT_DESCRIPTION_TITLE: "role_input_description_title",
+  ROLE_INPUT_DESCRIPTION_PLACEHOLDER: "role_input_description_placeholder",
+
+  FORM_ERR_NOT_EMPTY: "form_err_not_empty",
+
   COMMON_BTN_EXPORT: "common_btn_export",
   COMMON_BTN_SELECT_ALL: "common_btn_select_all",
   COMMON_TOOLTIP_FILTER: "common_tooltip_filter",
@@ -36,6 +44,13 @@ export const LANG_KEY_CONST = {
   COMMON_ORDER: "common_order",
   COMMON_CREATED_AT: "common_created_at",
   COMMON_FIELD: "common_field",
+  COMMON_MORE: "common_more",
+  COMMON_EDIT: "common_edit",
+  COMMON_ADD: "common_add",
+  COMMON_SAVE: "common_save",
+  COMMON_CREATE: "common_create",
+  COMMON_CREATE_SUCCESS: "common_create_success",
+  COMMON_SAVE_SUCCESS: "common_save_success",
 
   TABLE_LIST_EMPTY: "table_list_empty",
   TABLE_OF: "table_of",

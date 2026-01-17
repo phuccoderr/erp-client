@@ -40,6 +40,7 @@ const ButtonAnimated = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 5, opacity: 0 }}
           transition={{ duration: 0.15, ease: "linear" }}
+          className="flex items-center gap-1"
         >
           {disabled ? (
             <div className="px-2 flex gap-1 items-center justify-center">

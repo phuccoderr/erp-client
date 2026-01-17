@@ -7,6 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Separator,
   useSidebar,
 } from "@components/ui";
 import { useLangStore, useThemeStore } from "@stores";
@@ -36,55 +37,58 @@ export const Header = () => {
   };
 
   return (
-    <div className="flex justify-between px-4 py-2 items-center">
-      <Button
-        className="justify-start"
-        onClick={toggleSidebar}
-        variant="ghost"
-        size="icon-sm"
-      >
-        <Menu />
-      </Button>
-      <div className="flex gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="outline">
-              {lang === "vi" ? (
-                <VN className="size-5 rounded-sm" />
-              ) : (
-                <US className="size-5 rounded-sm" />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleChangeLang("vi")}>
-              <VN className="rounded-sm size-5" />
-              Vietnamese
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleChangeLang("en")}>
-              <US className="rounded-sm size-5" />
-              English
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button onClick={toggleTheme} size="icon" variant="outline">
-          {theme === "light" ? <Sun /> : <MoonStar />}
+    <div className="sticky top-0 bg-background">
+      <div className="flex justify-between px-4 py-2 items-center">
+        <Button
+          className="justify-start"
+          onClick={toggleSidebar}
+          variant="ghost"
+          size="icon-sm"
+        >
+          <Menu />
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="outline">
-              <User />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="bottom" align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              {t(LANG_KEY_CONST.COMMON_LOGOUT)}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline">
+                {lang === "vi" ? (
+                  <VN className="size-5 rounded-sm" />
+                ) : (
+                  <US className="size-5 rounded-sm" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleChangeLang("vi")}>
+                <VN className="rounded-sm size-5" />
+                Vietnamese
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleChangeLang("en")}>
+                <US className="rounded-sm size-5" />
+                English
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={toggleTheme} size="icon" variant="outline">
+            {theme === "light" ? <Sun /> : <MoonStar />}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline">
+                <User />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="bottom" align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                {t(LANG_KEY_CONST.COMMON_LOGOUT)}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+      <Separator />
     </div>
   );
 };
