@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const baseRoleSchema = z.object({
   name: z.string().trim().min(1, LANG_KEY_CONST.FORM_ERR_NOT_EMPTY),
-  description: z.string(),
+  description: z.string().trim().min(1, LANG_KEY_CONST.FORM_ERR_NOT_EMPTY),
   permission_ids: z.array(z.number()),
 });
 

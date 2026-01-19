@@ -49,8 +49,10 @@ export const LANG_KEY_CONST = {
   COMMON_ADD: "common_add",
   COMMON_SAVE: "common_save",
   COMMON_CREATE: "common_create",
+  COMMON_SELECTED: "common_selected",
   COMMON_CREATE_SUCCESS: "common_create_success",
   COMMON_SAVE_SUCCESS: "common_save_success",
+  COMMON_DELETE_SUCCESS: "common_delete_success",
 
   TABLE_LIST_EMPTY: "table_list_empty",
   TABLE_OF: "table_of",

@@ -9,8 +9,10 @@ import {
 } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "./field";
 
-interface TextareaProps<TFieldValues extends FieldValues>
-  extends Omit<React.ComponentProps<"textarea">, "name"> {
+interface TextareaProps<TFieldValues extends FieldValues> extends Omit<
+  React.ComponentProps<"textarea">,
+  "name"
+> {
   isForm?: boolean;
   name?: Path<TFieldValues>;
   control?: Control<TFieldValues>;
@@ -27,7 +29,7 @@ function Textarea<TFieldValues extends FieldValues>({
   ...props
 }: TextareaProps<TFieldValues>) {
   const basedClassName =
-    "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-xs";
+    "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 text-xs";
 
   if (isForm && name && control) {
     return (

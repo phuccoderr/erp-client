@@ -22,10 +22,10 @@ import {
 import { LANG_KEY_CONST } from "@constants";
 import { useQueryPermissions } from "@hooks/permisson";
 import { useLang } from "@hooks/use-lang";
-import type { RoleGroup } from "@types";
 import { StringUtils } from "@utils";
-import { Ban, CheckCheck, SearchIcon } from "lucide-react";
+import { Ban, Check, CheckCheck, SearchIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import type { RoleGroup } from "@types";
 
 interface RoleFormProps {
   title: string;
@@ -78,16 +78,40 @@ const RoleForm = ({
           (p) =>
             p.action.toLowerCase().includes(q) ||
             p.description?.toLowerCase().includes(q) ||
-            g.name.toLowerCase().includes(q)
+            g.name.toLowerCase().includes(q),
         ),
       }))
       .filter((g) => g.children.length > 0);
   }, [searchQuery, permissionsGroup]);
 
+  const allPermissionIds = useMemo(() => {
+    return (
+      permissions?.entities
+        ?.filter((p) => p.resource !== "auth")
+        .map((p) => p.id) ?? []
+    );
+  }, [permissions]);
+
+  const allSelected =
+    allPermissionIds.length > 0 &&
+    allPermissionIds.every((id) => permissionIds.includes(id));
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      // Bỏ chọn hết
+      form.setValue("permission_ids", [], { shouldDirty: true });
+    } else {
+      // Chọn hết tất cả permission (không lọc theo search)
+      form.setValue("permission_ids", [...allPermissionIds], {
+        shouldDirty: true,
+      });
+    }
+  };
+
   const isGroupChecked = useCallback(
     (group: RoleGroup) =>
       group.children.every((p) => permissionIds.includes(p.id)),
-    [permissionIds]
+    [permissionIds],
   );
 
   const togglePermission = (id: number) => {
@@ -97,7 +121,7 @@ const RoleForm = ({
       current.includes(id)
         ? current.filter((x: number) => x !== id)
         : [...current, id],
-      { shouldDirty: true }
+      { shouldDirty: true },
     );
   };
 
@@ -110,7 +134,7 @@ const RoleForm = ({
       isGroupChecked(group)
         ? current.filter((id: number) => !ids.includes(id))
         : [...new Set([...current, ...ids])],
-      { shouldDirty: true }
+      { shouldDirty: true },
     );
   };
   return (
@@ -140,11 +164,23 @@ const RoleForm = ({
                 <Typography className="font-medium">
                   {t(LANG_KEY_CONST.PERMISSION)}
                 </Typography>
-                <Badge className="text-[10px]">{selectedCount} selected</Badge>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    className="cursor-pointer"
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    disabled={!permissions || allPermissionIds.length === 0}
+                  >
+                    <Check />
+                  </Checkbox>
+                  <Badge className="text-[10px]">
+                    {selectedCount} {t(LANG_KEY_CONST.COMMON_SELECTED)}
+                  </Badge>
+                </div>
               </div>
               <InputGroup>
                 <InputGroupInput
-                  placeholder="Search..."
+                  placeholder={`${t(LANG_KEY_CONST.COMMON_SEARCH)}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -157,7 +193,7 @@ const RoleForm = ({
                   {filteredGroups?.map((group) => (
                     <div key={group.name} className="flex flex-col gap-2">
                       <div
-                        className="flex items-center gap-2 p-1 hover:bg-outline rounded-lg"
+                        className="flex items-center gap-2 p-1 hover:bg-outline rounded-lg cursor-pointer"
                         onClick={(e) => {
                           const target = e.target as HTMLElement;
 
@@ -177,7 +213,7 @@ const RoleForm = ({
                           return (
                             <div
                               key={child.id}
-                              className="flex items-center gap-2 hover:bg-outline p-1 rounded-lg"
+                              className="flex items-center gap-2 hover:bg-outline p-1 rounded-lg cursor-pointer"
                               onClick={(e) => {
                                 const target = e.target as HTMLElement;
 

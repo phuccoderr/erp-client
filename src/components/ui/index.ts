@@ -1,3 +1,5 @@
+export * from "./alert-dialog-delete";
+export * from "./alert-dialog";
 export * from "./aspect-ratio";
 export * from "./badge";
 export * from "./button-group";
