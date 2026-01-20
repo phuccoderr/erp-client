@@ -24,6 +24,7 @@ function Textarea<TFieldValues extends FieldValues>({
   name,
   control,
   label,
+  required = false,
   id,
   className,
   ...props
@@ -38,7 +39,17 @@ function Textarea<TFieldValues extends FieldValues>({
         control={control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            {label && <FieldLabel htmlFor={id || name}>{label}</FieldLabel>}
+            {label && (
+              <FieldLabel htmlFor={id || name}>
+                {label}
+                {required && (
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+                    aria-hidden="true"
+                  />
+                )}
+              </FieldLabel>
+            )}
             <textarea
               {...field}
               data-slot="input"

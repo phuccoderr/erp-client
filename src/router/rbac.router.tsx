@@ -1,15 +1,15 @@
 import { ROUTE_CONST } from "@constants";
-import PermissionPage from "@pages/rbac/permisson";
-import RolePage from "@pages/rbac/role";
+import PermissionsPage from "@pages/rbac/permissions";
+import RolesPage from "@pages/rbac/roles";
 import type { RouteObject } from "react-router-dom";
 
 export const rbacRouter: RouteObject[] = [
   {
     path: ROUTE_CONST.RBAC.PERMISSON,
-    element: <PermissionPage />,
+    element: <PermissionsPage />,
   },
   {
     path: ROUTE_CONST.RBAC.ROLE,
-    element: <RolePage />,
+    element: <RolesPage />,
   },
 ];

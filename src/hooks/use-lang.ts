@@ -1,5 +1,5 @@
+import { useQueryLangs } from "@apis/langs";
 import { useLangStore } from "@stores";
-import { useQueryLangs } from "./lang";
 import { useCallback, useMemo } from "react";
 
 export const useLang = () => {

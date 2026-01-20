@@ -8,5 +8,8 @@ export const TANSTACK_KEY_CONST = {
   QUERY_ROLE: "query_roles",
   COMMAND_ROLE: "command_roles",
 
+  QUERY_UNIT: "query_units",
+  COMMAND_UNIT: "command_units",
+
   QUERY_LANG: "query_langs",
 };

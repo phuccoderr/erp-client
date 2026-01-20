@@ -51,4 +51,4 @@ const AlertDialogDelete = ({
   );
 };
 
-export default AlertDialogDelete;
+export { AlertDialogDelete };

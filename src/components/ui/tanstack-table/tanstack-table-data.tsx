@@ -44,7 +44,7 @@ function TanstackTableData({ isLoading = false }: TanstackTableDataProps) {
   };
 
   const getHeaderPinningStyles = (column: Column<any>): CSSProperties => {
-    const isFirstColumn = column.getIsFirstColumn();
+    const isFirstColumn = column.getIsPinned();
     return {
       ...getCommonPinningStyles(column),
       top: 0,
@@ -94,7 +94,7 @@ function TanstackTableData({ isLoading = false }: TanstackTableDataProps) {
                   <div className="flex items-center gap-2 ">
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                     {{
                       asc: <ArrowUpNarrowWide className="w-4 h-4" />,

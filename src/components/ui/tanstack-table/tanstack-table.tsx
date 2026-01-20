@@ -9,7 +9,10 @@ import {
   type ColumnPinningState,
   type SortingState,
   type Table as TableState,
-  type AccessorKeyColumnDef,
+  type AccessorKeyColumnDefBase,
+  type IdIdentifier,
+  type ColumnDefBase,
+  type StringHeaderIdentifier,
 } from "@tanstack/react-table";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
@@ -25,14 +28,14 @@ type TableContextType<TData> = TableState<TData> & {
 };
 
 const TanstackTableContext = createContext<TableContextType<unknown> | null>(
-  null
+  null,
 );
 
 function useTanstackTable() {
   const context = useContext(TanstackTableContext);
   if (!context) {
     throw new Error(
-      "useTanstackTable must be used within a TanstackTableProvider."
+      "useTanstackTable must be used within a TanstackTableProvider.",
     );
   }
 
@@ -42,7 +45,12 @@ function useTanstackTable() {
 interface TanstackTableProps<TData> {
   children: ReactNode;
   data: TData[];
-  columns: AccessorKeyColumnDef<TData, string>[];
+  columns: (
+    | (AccessorKeyColumnDefBase<TData, string> &
+        Partial<IdIdentifier<TData, string>>)
+    | (ColumnDefBase<TData, unknown> & StringHeaderIdentifier)
+    | (ColumnDefBase<TData, unknown> & IdIdentifier<TData, unknown>)
+  )[];
   pinning?: string[];
   isPagination?: boolean;
   meta: {
@@ -85,7 +93,8 @@ function TanstackTable<TData>({
       columnPinning,
     },
     defaultColumn: {
-      size: 100,
+      size: 90,
+      minSize: 90,
     },
     getCoreRowModel: getCoreRowModel(),
     // Visibility

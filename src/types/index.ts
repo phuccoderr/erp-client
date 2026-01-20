@@ -5,3 +5,4 @@ export * from "./lang.type";
 export * from "./permission.type";
 export * from "./response.type";
 export * from "./role.type";
+export * from "./unit.type";

@@ -78,7 +78,6 @@ export interface FilterItem {
   type: "two-select" | "select" | "input" | "custom";
   label: string;
   state?: string | null;
-  key?: string;
   onApply?: () => void;
   onClear?: () => void;
   render?: () => ReactNode;
@@ -193,7 +192,7 @@ const TanstackTableFilter = ({
       },
       label:
         (column.columnDef.header as string) ?? column.id.replace(/_/g, " "),
-    })
+    }),
   );
 
   const checkedAll = getAllColumns().every((column) => column.getIsVisible());
@@ -209,18 +208,17 @@ const TanstackTableFilter = ({
     return filters
       .filter((item) => item.state)
       .map((item) => (
-        <Dialog>
+        <Dialog key={item.label}>
           <motion.div
-            key={item.key ?? item.label}
             whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
             className="inline-block"
           >
             <DialogTrigger asChild>
-              <Badge variant="outline">
+              <Badge variant="soft">
                 {item.state}
                 <Button
-                  variant="outline_primary"
-                  className="w-3 h-3 rounded-full has-[>svg]:px-0 "
+                  variant="soft"
+                  className="w-3 h-3 rounded-full has-[>svg]:px-0"
                   onClick={() => item.onClear?.()}
                 >
                   <X className="size-2" />
@@ -251,8 +249,8 @@ const TanstackTableFilter = ({
                       item.value
                         ? false
                         : item.primaryValue && item.secondaryValue
-                        ? false
-                        : true
+                          ? false
+                          : true
                     }
                     onClick={() => {
                       item.onApply?.();
@@ -272,7 +270,7 @@ const TanstackTableFilter = ({
   const hasFilters = filters.length > 0;
   const length = filters.reduce(
     (count, item) => count + (item.state ? 1 : 0),
-    0
+    0,
   );
 
   return (
@@ -304,11 +302,11 @@ const TanstackTableFilter = ({
                 {filters.map((item) => {
                   if (!item.state) return;
                   return (
-                    <Collapsible>
+                    <Collapsible key={item.label}>
                       <CollapsibleTrigger asChild>
                         <div className="flex items-center gap-2">
                           <Badge
-                            variant="outline"
+                            variant="soft"
                             className="rounded-sm flex-1 min-h-8 justify-start"
                           >
                             {item.icon}
@@ -316,7 +314,7 @@ const TanstackTableFilter = ({
                             <ChevronsUpDown />
                           </Badge>
                           <Button
-                            variant="outline_red"
+                            variant="soft-red"
                             size="icon-sm"
                             onClick={() => item.onClear?.()}
                           >
@@ -332,8 +330,8 @@ const TanstackTableFilter = ({
                               item.value
                                 ? false
                                 : item.primaryValue && item.secondaryValue
-                                ? false
-                                : true
+                                  ? false
+                                  : true
                             }
                             onClick={() => {
                               item.onApply?.();
@@ -393,7 +391,7 @@ const TanstackTableFilter = ({
                                   filter.icon as React.ReactElement<any>,
                                   {
                                     className: "w-4 h-4 text-muted-foreground",
-                                  }
+                                  },
                                 )
                               : filter.icon}
                             <Typography className="font-medium">
@@ -415,8 +413,8 @@ const TanstackTableFilter = ({
                               filter.value
                                 ? false
                                 : filter.primaryValue && filter.secondaryValue
-                                ? false
-                                : true
+                                  ? false
+                                  : true
                             }
                             onClick={() => {
                               filter.onApply?.();

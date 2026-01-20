@@ -6,7 +6,10 @@ export const ROUTE_CONST = {
     LANG: "/system/langs",
   },
   RBAC: {
-    PERMISSON: "/rbac/permission",
-    ROLE: "/rbac/role",
+    PERMISSON: "/rbac/permissions",
+    ROLE: "/rbac/roles",
+  },
+  INVENTORY_MANAGEMENT: {
+    UNIT: "/inventory_management/units",
   },
 };

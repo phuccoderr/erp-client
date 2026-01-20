@@ -1,5 +1,5 @@
+import { useQueryUserGetMe } from "@apis/users";
 import { COOKIE_CONST, ROUTE_CONST } from "@constants";
-import { useQueryUserGetMe } from "@hooks/user";
 import { CookieStorageUtil } from "@utils";
 import { useEffect, type PropsWithChildren } from "react";
 

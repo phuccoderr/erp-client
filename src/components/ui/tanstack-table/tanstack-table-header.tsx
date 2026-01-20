@@ -7,12 +7,12 @@ import {
   DropdownMenuTrigger,
   Spinner,
   Typography,
+  useTanstackTable,
 } from "@components/ui";
 import { CSVLink } from "react-csv";
 import { LANG_KEY_CONST } from "@constants";
 import { FileDown } from "lucide-react";
-import { PermissionApi } from "@apis";
-import { useLang } from "@hooks/use-lang";
+import { useLang } from "@hooks";
 
 interface HeaderProps {
   children: ReactNode;
@@ -24,54 +24,63 @@ const TanstackTableHeader = ({ children, title }: HeaderProps) => {
       <Typography variant="h4" className="flex-1">
         {title}
       </Typography>
-      <div className="flex items-end">{children}</div>
+      <div className="flex items-end gap-2">{children}</div>
     </div>
   );
 };
 
+export interface CsvExportConfig {
+  headers: { label: string; key: string }[];
+  filename?: string;
+  allExportFilename?: string;
+  fetchAllRecords?: () => Promise<any[]>;
+}
+
 interface HeaderRightProps {
   children?: ReactNode;
-  csv?: {
-    fileName?: string;
-    data: any[];
-    headers: { label: string; key: string }[];
-  };
+  csv?: CsvExportConfig;
 }
 const TanstackTableHeaderRight = ({
   children,
-  csv = { data: [], headers: [], fileName: "base.csv" },
+  csv = {
+    headers: [],
+    filename: "export.csv",
+  },
 }: HeaderRightProps) => {
   const { t } = useLang();
   const [loadingCSV, setLoadingCSV] = useState(false);
-  const [allData, setAllData] = useState([]);
-  const csvInstance = useRef<any | null>(null);
+  const [allData, setAllData] = useState<any[]>([]);
+  const csvAllRef = useRef<any | null>(null);
+  const { getRowModel } = useTanstackTable();
 
-  const asyncExportAll = async () => {
+  useEffect(() => {
+    if (allData.length > 0 && csvAllRef.current?.link) {
+      const timer = setTimeout(() => {
+        csvAllRef.current.link.click();
+        setAllData([]);
+        setLoadingCSV(false);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [allData]);
+
+  const handleExportAll = async () => {
+    if (!csv.fetchAllRecords || loadingCSV) return;
+
+    setLoadingCSV(true);
     try {
-      const fullData = await PermissionApi.findAll({
-        pagination: false,
-      });
-      setAllData(fullData.data.entities);
-      setLoadingCSV(true);
-    } catch (e) {
+      const fullData = await csv.fetchAllRecords();
+      setAllData(fullData as any[]);
+    } catch (err) {
       setLoadingCSV(false);
     }
   };
 
-  useEffect(() => {
-    if (
-      allData.length > 0 &&
-      csvInstance &&
-      csvInstance.current &&
-      csvInstance.current.link
-    ) {
-      setTimeout(() => {
-        csvInstance.current.link.click();
-        setAllData([]);
-        setLoadingCSV(false);
-      });
-    }
-  }, [allData]);
+  const currentPageData = getRowModel().rows.map((r) => r.original) as any[];
+  const currentFileName = csv.filename ?? "current-page.csv";
+  const allFileName =
+    csv.allExportFilename ?? csv.filename ?? "all-records.csv";
 
   return (
     <div className="flex gap-2">
@@ -82,7 +91,9 @@ const TanstackTableHeaderRight = ({
               {loadingCSV ? (
                 <div className="px-2 flex gap-1 items-center justify-center">
                   <Spinner />
-                  <Typography>Processing...</Typography>
+                  <Typography>
+                    {t(LANG_KEY_CONST.COMMON_PROCESSING)}...
+                  </Typography>
                 </div>
               ) : (
                 <Fragment>
@@ -96,19 +107,14 @@ const TanstackTableHeaderRight = ({
         <DropdownMenuContent>
           <DropdownMenuItem>
             <CSVLink
-              data={csv.data}
+              data={currentPageData}
               headers={csv.headers}
-              filename={csv.fileName}
+              filename={currentFileName}
             >
               {t(LANG_KEY_CONST.TABLE_EXPORT_PAGE)}
             </CSVLink>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={loadingCSV}
-            onClick={() => {
-              asyncExportAll();
-            }}
-          >
+          <DropdownMenuItem disabled={loadingCSV} onClick={handleExportAll}>
             {t(LANG_KEY_CONST.TABLE_EXPORT_ALL)}
           </DropdownMenuItem>
           {allData && (
@@ -116,8 +122,8 @@ const TanstackTableHeaderRight = ({
               className="hidden"
               data={allData}
               headers={csv.headers}
-              filename={csv.fileName}
-              ref={csvInstance}
+              filename={allFileName}
+              ref={csvAllRef}
             />
           )}
         </DropdownMenuContent>

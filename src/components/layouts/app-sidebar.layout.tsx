@@ -23,6 +23,7 @@ import {
   CircleUser,
   Home,
   KeyRound,
+  Scale,
   ShieldUser,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -72,6 +73,16 @@ const groupSidebar: GroupItem[] = [
         title: LANG_KEY_CONST.MENU_RBAC_PERMISSION,
         url: ROUTE_CONST.RBAC.PERMISSON,
         icon: <KeyRound />,
+      },
+    ],
+  },
+  {
+    name: LANG_KEY_CONST.MENU_INVENTORY_MANAGEMENT,
+    items: [
+      {
+        title: LANG_KEY_CONST.MENU_INVENTORY_MANAGEMENT_UNIT,
+        url: ROUTE_CONST.INVENTORY_MANAGEMENT.UNIT,
+        icon: <Scale />,
       },
     ],
   },

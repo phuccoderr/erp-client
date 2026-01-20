@@ -8,8 +8,10 @@ import {
 } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "./field";
 
-interface InputProps<TFieldValues extends FieldValues>
-  extends Omit<React.ComponentProps<"input">, "name"> {
+interface InputProps<TFieldValues extends FieldValues> extends Omit<
+  React.ComponentProps<"input">,
+  "name"
+> {
   isForm?: boolean;
   name?: Path<TFieldValues>;
   control?: Control<TFieldValues>;
@@ -21,6 +23,7 @@ function Input<TFieldValues extends FieldValues>({
   name,
   control,
   label,
+  required = false,
   id,
   className,
   type,
@@ -39,7 +42,18 @@ function Input<TFieldValues extends FieldValues>({
         control={control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            {label && <FieldLabel htmlFor={id || name}>{label}</FieldLabel>}
+            {label && (
+              <FieldLabel htmlFor={id || name}>
+                {label}{" "}
+                {required && (
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+                    aria-hidden="true"
+                  />
+                )}
+              </FieldLabel>
+            )}
+
             <input
               {...field}
               type={type}

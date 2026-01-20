@@ -16,6 +16,20 @@ export const LANG_KEY_CONST = {
   PERMISSION_FIELD_DESCRIPTION: "permission_field_description",
   PERMISSION_FIELD_PATH: "permission_field_path",
 
+  UNIT_TITLE_ADD: "unit_title_add",
+  UNIT_TITLE_UPDATE: "unit_title_update",
+  UNIT_FIELD_NAME: "unit_field_name",
+  UNIT_FIELD_CODE: "unit_field_code",
+  UNIT_FIELD_DESCRIPTION: "unit_field_description",
+  UNIT_INPUT_NAME_TITLE: "unit_input_name_title",
+  UNIT_INPUT_NAME_PLACEHOLDER: "unit_input_name_placeholder",
+  UNIT_INPUT_CODE_TITLE: "unit_input_code_title",
+  UNIT_INPUT_CODE_PLACEHOLDER: "unit_input_code_placeholder",
+  UNIT_INPUT_DESCRIPTION_TITLE: "unit_input_description_title",
+  UNIT_INPUT_DESCRIPTION_PLACEHOLDER: "unit_input_description_placeholder",
+
+  ROLE_TITLE_ADD: "role_title_add",
+  ROLE_TITLE_UPDATE: "role_title_update",
   ROLE_BTN_ADD: "role_btn_add",
   ROLE_INPUT_NAME_TITLE: "role_input_name_title",
   ROLE_INPUT_NAME_PLACEHOLDER: "role_input_name_placeholder",
@@ -23,6 +37,7 @@ export const LANG_KEY_CONST = {
   ROLE_INPUT_DESCRIPTION_PLACEHOLDER: "role_input_description_placeholder",
 
   FORM_ERR_NOT_EMPTY: "form_err_not_empty",
+  FORM_ERR_MAX_LENGTH: "form_err_max_length",
 
   COMMON_BTN_EXPORT: "common_btn_export",
   COMMON_BTN_SELECT_ALL: "common_btn_select_all",
@@ -69,9 +84,12 @@ export const LANG_KEY_CONST = {
   MENU_SETTING: "menu_setting",
   MENU_SETTING_LANG: "menu_setting_lang",
   MENU_DASHBOARD: "menu_dashboard",
+  MENU_INVENTORY_MANAGEMENT: "menu_inventory_management",
+  MENU_INVENTORY_MANAGEMENT_UNIT: "menu_inventory_management_unit",
 
   PERMISSION: "permission",
   LANG: "lang",
   USER: "user",
   CATEGORY: "category",
+  UNIT: "unit",
 };
