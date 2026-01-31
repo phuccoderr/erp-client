@@ -22,7 +22,7 @@ type TableContextType<TData> = TableState<TData> & {
   meta: {
     total: number;
     page: number;
-    limit: number;
+    take: number;
     total_pages: number;
   };
 };
@@ -56,7 +56,7 @@ interface TanstackTableProps<TData> {
   meta: {
     total: number;
     page: number;
-    limit: number;
+    take: number;
     total_pages: number;
   };
 }
@@ -79,7 +79,7 @@ function TanstackTable<TData>({
     columns,
     initialState: {
       pagination: {
-        pageSize: isPagination ? meta.limit : 15,
+        pageSize: isPagination ? meta.take : 15,
         pageIndex: isPagination ? meta.page : 0,
       },
       columnVisibility: {

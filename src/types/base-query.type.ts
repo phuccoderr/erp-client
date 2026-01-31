@@ -1,9 +1,9 @@
 export type BaseQuery<T> = {
   page?: number;
 
-  limit?: number;
+  take?: number;
 
-  sort?: keyof T;
+  orderBy?: keyof T;
 
   order?: "asc" | "desc";
 

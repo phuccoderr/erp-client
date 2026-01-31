@@ -25,11 +25,12 @@ import {
   FileSearchCorner,
   Trash2,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { FilterUtils } from "@utils";
 import { useLang } from "@hooks";
 import { LANG_KEY_CONST } from "@constants";
 import { PermissionApi, useQueryPermissions } from "@apis/permissions";
+import { useFilterTable } from "@hooks/use-filter-table";
 
 const ACTION_CONFIG: Record<
   string,
@@ -46,25 +47,13 @@ const ACTION_CONFIG: Record<
 
 const PermissionsPage = () => {
   const { t, data: dataLang } = useLang();
-  const [filters, setFilters] = useState<FindAllPermission>({
-    page: 1,
-    limit: 15,
-    pagination: true,
-    order: undefined,
-    sort: undefined,
-  });
-  const [query, setQuery] = useState<FindAllPermission>({
-    page: 1,
-    limit: 15,
-    pagination: true,
-    sort: undefined,
-    order: undefined,
-  });
+  const { filters, setFilters, query, setQuery } =
+    useFilterTable<FindAllPermission>();
   const { data, isFetching, isLoading, refetch } = useQueryPermissions({
     page: query.page,
-    limit: query.limit,
+    take: query.take,
     pagination: query.pagination,
-    sort: query.sort,
+    orderBy: query.orderBy,
     order: query.order,
     resource: query.resource,
   });
@@ -126,10 +115,10 @@ const PermissionsPage = () => {
   const handleApplySort = useCallback(() => {
     setQuery((prev) => ({
       ...prev,
-      sort: filters.sort,
+      orderBy: filters.orderBy,
       order: filters.order,
     }));
-  }, [filters.sort, filters.order]);
+  }, [filters.orderBy, filters.order]);
 
   const handleApplyResource = useCallback(() => {
     setQuery((prev) => ({
@@ -143,7 +132,7 @@ const PermissionsPage = () => {
       data={data?.entities ?? []}
       columns={columns}
       isPagination={query.pagination}
-      meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
+      meta={data?.meta ?? { take: 0, page: 0, total: 0, total_pages: 0 }}
       pinning={["resource"]}
     >
       <TanstackTableHeader title={t(LANG_KEY_CONST.PERMISSION)}>
@@ -170,18 +159,18 @@ const PermissionsPage = () => {
               icon: <ArrowUpDown />,
               label: t(LANG_KEY_CONST.COMMON_SORT),
               state: FilterUtils.getSortState(
-                query.sort,
+                query.orderBy,
                 query.order,
                 fieldSorts,
               ),
-              primaryValue: filters.sort,
+              primaryValue: filters.orderBy,
               primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
               primaryOptions: primaryOptions,
               onPrimaryChange: (value) => {
-                const sortBy = value as keyof Permission;
+                const orderBy = value as keyof Permission;
                 setFilters((prev) => ({
                   ...prev,
-                  sort: sortBy,
+                  orderBy,
                 }));
               },
               secondaryValue: filters.order,
@@ -201,12 +190,12 @@ const PermissionsPage = () => {
               onClear: () => {
                 setFilters((prev) => ({
                   ...prev,
-                  sort: undefined,
+                  orderBy: undefined,
                   order: undefined,
                 }));
                 setQuery((prev) => ({
                   ...prev,
-                  sort: undefined,
+                  orderBy: undefined,
                   order: undefined,
                 }));
               },

@@ -25,14 +25,12 @@ const UnitsPage = () => {
   const { t, data: dataLang } = useLang();
   const [filters, setFilters] = useState<FindAllUnit>({
     page: 1,
-    limit: 15,
+    take: 15,
     pagination: true,
-    order: undefined,
-    sort: undefined,
   });
   const [query, setQuery] = useState<FindAllUnit>({
     page: 1,
-    limit: 15,
+    take: 15,
     pagination: true,
   });
   const { data, isFetching, isLoading, refetch } = useQueryUnits(query);
@@ -131,10 +129,10 @@ const UnitsPage = () => {
   const handleApplySort = useCallback(() => {
     setQuery((prev) => ({
       ...prev,
-      sort: filters.sort,
+      orderBy: filters.orderBy,
       order: filters.order,
     }));
-  }, [filters.sort, filters.order]);
+  }, [filters.orderBy, filters.order]);
 
   const handleApplyName = useCallback(() => {
     setQuery((prev) => ({
@@ -156,7 +154,7 @@ const UnitsPage = () => {
         data={data?.entities ?? []}
         columns={columns}
         isPagination={query.pagination}
-        meta={data?.meta ?? { limit: 0, page: 0, total: 0, total_pages: 0 }}
+        meta={data?.meta ?? { take: 0, page: 0, total: 0, total_pages: 0 }}
         pinning={["name", "code"]}
       >
         <TanstackTableHeader
@@ -188,18 +186,18 @@ const UnitsPage = () => {
                 icon: <ArrowUpDown />,
                 label: t(LANG_KEY_CONST.COMMON_SORT),
                 state: FilterUtils.getSortState(
-                  query.sort,
+                  query.orderBy,
                   query.order,
                   fieldSorts,
                 ),
-                primaryValue: filters.sort,
+                primaryValue: filters.orderBy,
                 primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
                 primaryOptions: primaryOptions,
                 onPrimaryChange: (value) => {
-                  const sortBy = value as keyof Unit;
+                  const orderBy = value as keyof Unit;
                   setFilters((prev) => ({
                     ...prev,
-                    sort: sortBy,
+                    orderBy,
                   }));
                 },
                 secondaryValue: filters.order,
@@ -219,12 +217,12 @@ const UnitsPage = () => {
                 onClear: () => {
                   setFilters((prev) => ({
                     ...prev,
-                    sort: undefined,
+                    orderBy: undefined,
                     order: undefined,
                   }));
                   setQuery((prev) => ({
                     ...prev,
-                    sort: undefined,
+                    orderBy: undefined,
                     order: undefined,
                   }));
                 },

@@ -8,9 +8,9 @@ export type ResponseERP<T = null> = {
 export type ResponseFindAll<T> = {
   entities: T[];
   meta: {
-    limit: number;
+    take: number;
     page: number;
     total: number;
     total_pages: number;
-  };
+  } | null;
 };

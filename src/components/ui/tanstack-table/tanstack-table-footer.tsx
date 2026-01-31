@@ -34,7 +34,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
     const currentPage = isPagination
       ? meta.page
       : getState().pagination.pageIndex + 1;
-    const pageSize = isPagination ? meta.limit : getState().pagination.pageSize;
+    const pageSize = isPagination ? meta.take : getState().pagination.pageSize;
     const total = isPagination ? meta.total : dataLength;
     const totalPages = isPagination ? meta.total_pages : getPageCount();
 
@@ -52,7 +52,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
   }, [
     isPagination,
     meta.page,
-    meta.limit,
+    meta.take,
     meta.total,
     meta.total_pages,
     getState().pagination.pageIndex,
@@ -78,7 +78,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
         }
       }
     },
-    [isPagination, currentPage, onPageChange, previousPage, nextPage]
+    [isPagination, currentPage, onPageChange, previousPage, nextPage],
   );
 
   const handlePageClick = useCallback(
@@ -89,7 +89,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
         setPageIndex(page - 1);
       }
     },
-    [isPagination, onPageChange, setPageIndex]
+    [isPagination, onPageChange, setPageIndex],
   );
 
   const handleGoToPage = useCallback(
@@ -119,7 +119,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
 
       input.blur();
     },
-    [isPagination, totalPages, onPageChange, setPageIndex]
+    [isPagination, totalPages, onPageChange, setPageIndex],
   );
 
   const pageButtons = useMemo(() => {
@@ -135,7 +135,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
           variant={i === currentPage ? "default" : "outline"}
         >
           {i}
-        </Button>
+        </Button>,
       );
     }
 
@@ -182,7 +182,7 @@ const TanstackTableFooter = ({ onPageChange }: TanstackTableFooterProps) => {
               <Input
                 type="number"
                 placeholder={t(
-                  LANG_KEY_CONST.TABLE_INPUT_GO_TO_PAGE_PLACEHOLDER
+                  LANG_KEY_CONST.TABLE_INPUT_GO_TO_PAGE_PLACEHOLDER,
                 )}
                 min={1}
                 max={isPagination ? meta?.total_pages : getPageCount()}

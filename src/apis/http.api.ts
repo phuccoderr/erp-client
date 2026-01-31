@@ -30,7 +30,7 @@ http.interceptors.response.use(
       }
     }
     throw error.response.data;
-  }
+  },
 );
 
 export default http;
