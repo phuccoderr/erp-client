@@ -13,8 +13,13 @@ const useFormCategory = () => {
     description: z
       .string()
       .trim()
-      .pipe(z.union([z.literal(""), z.string().min(1).max(255)])),
-    parent_id: z.number().min(1, LANG_KEY_CONST.FORM_ERR_NOT_EMPTY).optional(),
+      .pipe(z.union([z.literal(""), z.string().min(1).max(255)]))
+      .optional(),
+    parent_id: z
+      .number()
+      .min(1, LANG_KEY_CONST.FORM_ERR_NOT_EMPTY)
+      .nullable()
+      .optional(),
     is_active: z.boolean().optional(),
   });
 

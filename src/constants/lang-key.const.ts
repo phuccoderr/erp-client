@@ -28,6 +28,17 @@ export const LANG_KEY_CONST = {
   UNIT_INPUT_DESCRIPTION_TITLE: "unit_input_description_title",
   UNIT_INPUT_DESCRIPTION_PLACEHOLDER: "unit_input_description_placeholder",
 
+  CATEGORY_TITLE_ADD: "category_title_add",
+  CATEGORY_TITLE_UPDATE: "category_title_update",
+  CATEGORY_FIELD_NAME: "category_field_name",
+  CATEGORY_FIELD_DESCRIPTION: "category_field_description",
+  CATEGORY_FIELD_PARENT: "category_field_parent",
+  CATEGORY_INPUT_NAME_TITLE: "category_input_name_title",
+  CATEGORY_INPUT_NAME_PLACEHOLDER: "category_input_name_placeholder",
+  CATEGORY_INPUT_DESCRIPTION_TITLE: "category_input_description_title",
+  CATEGORY_INPUT_DESCRIPTION_PLACEHOLDER:
+    "category_input_description_placeholder",
+
   ROLE_TITLE_ADD: "role_title_add",
   ROLE_TITLE_UPDATE: "role_title_update",
   ROLE_BTN_ADD: "role_btn_add",

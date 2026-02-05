@@ -36,23 +36,34 @@ import { ArrowUpDown } from "lucide-react";
 import { useLang } from "@hooks/use-lang";
 import { WrapperFilter, WrapperHeader } from "@components/layouts";
 import { useFilterTable } from "@hooks/use-filter-table";
+import CategoryCreateDialog from "./components/category-create-dialog";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@components/ui/combobox";
 
 const CategoriesPage = () => {
+  const [offsetLeft, setOffsetLeft] = useState(0);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
+  const [items, setItems] = useState<ResultTreeItem<Category>[]>([]);
+  const [openCreate, setOpenCreate] = useState(false);
+
   const { mutate: updateCategory } = useCommandUpdateCategory();
   const { t, data: langs } = useLang();
   const { filters, setFilters, query, setQuery } =
     useFilterTable<FindAllCategory>();
-  const [items, setItems] = useState<ResultTreeItem<Category>[]>([]);
+
   const { data: categories, isFetching, refetch } = useQueryCategories(query);
   useEffect(() => {
     if (categories) {
       setItems(ArrayUtils.buildTreeWithDepth(categories.entities));
     }
   }, [categories]);
-
-  const [offsetLeft, setOffsetLeft] = useState(0);
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
 
   const flattenedItems = useMemo(() => {
     const flatten = ArrayUtils.flattenTree(items);
@@ -104,6 +115,10 @@ const CategoriesPage = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const toggleOpenCreate = useCallback(() => {
+    setOpenCreate(true);
+  }, []);
 
   const handleApplySort = useCallback(() => {
     setQuery((prev) => ({
@@ -224,9 +239,39 @@ const CategoriesPage = () => {
     document.body.style.setProperty("cursor", "grabbing");
   }
 
+  const parents = useMemo(
+    () => categories?.entities.map((cate) => cate.name),
+    [categories],
+  );
+
   return (
     <>
-      <WrapperHeader title="Categories" titleAdd="Add" />
+      <Combobox items={parents}>
+        <ComboboxInput placeholder="Select a parent" />
+        <ComboboxContent>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+          <ComboboxList>
+            {(item) => {
+              return (
+                <ComboboxItem
+                  key={item}
+                  value={item}
+                  onSelect={(e) => {
+                    console.log(e);
+                  }}
+                >
+                  {item}
+                </ComboboxItem>
+              );
+            }}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+      <WrapperHeader
+        title={t(LANG_KEY_CONST.CATEGORY)}
+        titleAdd={t(LANG_KEY_CONST.CATEGORY_TITLE_ADD)}
+        onAdd={toggleOpenCreate}
+      />
 
       <div className="border rounded-sm">
         <WrapperFilter
@@ -332,11 +377,7 @@ const CategoriesPage = () => {
           </DndContext>
         </div>
       </div>
-
-      <div className="mt-8 text-center text-gray-500 text-sm">
-        Kéo thả để sắp xếp thứ tự hoặc thay đổi cấp độ (kéo sang phải nhiều sẽ
-        tăng cấp)
-      </div>
+      <CategoryCreateDialog isOpen={openCreate} onOpenChange={setOpenCreate} />
     </>
   );
 };
