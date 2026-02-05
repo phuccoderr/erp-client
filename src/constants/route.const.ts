@@ -10,6 +10,7 @@ export const ROUTE_CONST = {
     ROLE: "/rbac/roles",
   },
   INVENTORY_MANAGEMENT: {
+    CATEGORY: "/inventory_management/categories",
     UNIT: "/inventory_management/units",
   },
 };

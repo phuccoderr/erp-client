@@ -84,6 +84,11 @@ const groupSidebar: GroupItem[] = [
         url: ROUTE_CONST.INVENTORY_MANAGEMENT.UNIT,
         icon: <Scale />,
       },
+      {
+        title: LANG_KEY_CONST.MENU_INVENTORY_MANAGEMENT_CATEGORY,
+        url: ROUTE_CONST.INVENTORY_MANAGEMENT.CATEGORY,
+        icon: <Scale />,
+      },
     ],
   },
   {

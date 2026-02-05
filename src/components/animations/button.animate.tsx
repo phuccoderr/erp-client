@@ -26,9 +26,9 @@ const ButtonAnimated = ({
   return (
     <motion.button
       className={cn(
-        buttonVariants({ variant, size: disabled ? "default" : size }),
+        buttonVariants({ variant, size: disabled ? "sm" : size }),
         loadingClass,
-        className
+        className,
       )}
       disabled={disabled}
       {...buttonProps}

@@ -9,7 +9,6 @@ import {
   TanstackTableHeaderRight,
 } from "@components/ui";
 import { createColumnHelper } from "@tanstack/react-table";
-import { type FindAllUnit, type Unit, type UnitFieldSort } from "@types";
 import { ArrowUpDown, FileSearchCorner, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { FilterUtils, queryClient, StringUtils } from "@utils";
@@ -20,6 +19,7 @@ import UnitCreateDialog from "./components/unit-create-dialog.component";
 import { UnitApi, useCommandDeleteUnit, useQueryUnits } from "@apis/units";
 import { toast } from "sonner";
 import { AlertDialogDelete } from "@components/ui/alert-dialog-delete";
+import type { FindAllUnit, Unit, UnitFieldSort } from "@types";
 
 const UnitsPage = () => {
   const { t, data: dataLang } = useLang();
@@ -81,10 +81,10 @@ const UnitsPage = () => {
       header: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
     }),
     columnHelper.display({
-      header: "ok",
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 items-center">
           <Button
             size="icon-xs"
             variant="ghost"
@@ -103,10 +103,12 @@ const UnitsPage = () => {
       ),
     }),
   ];
-  const csvHeaders = columns.map((col) => ({
-    label: col.header as string,
-    key: col.id as string,
-  }));
+  const csvHeaders = [
+    {
+      label: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
+      key: "name",
+    },
+  ];
   const fieldSorts: Record<UnitFieldSort, string> = {
     name: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
     code: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
@@ -159,22 +161,18 @@ const UnitsPage = () => {
       >
         <TanstackTableHeader
           title={StringUtils.capitalize(t(LANG_KEY_CONST.UNIT))}
-        >
-          <TanstackTableHeaderRight
-            csv={{
-              headers: csvHeaders,
-              filename: "units-2026.csv",
+          titleAdd={t(LANG_KEY_CONST.UNIT_TITLE_ADD)}
+          onAdd={toggleOpenCreate}
+          csv={{
+            headers: csvHeaders,
+            filename: "units-2026.csv",
 
-              fetchAllRecords: async () => {
-                const res = await UnitApi.findAll({ pagination: false });
-                return res.data.entities;
-              },
-            }}
-          />
-          <Button onClick={toggleOpenCreate}>
-            +{t(LANG_KEY_CONST.UNIT_TITLE_ADD)}
-          </Button>
-        </TanstackTableHeader>
+            fetchAllRecords: async () => {
+              const res = await UnitApi.findAll({ pagination: false });
+              return res.data.entities;
+            },
+          }}
+        ></TanstackTableHeader>
         <TanstackTableContent>
           <TanstackTableFilter
             isFetching={isFetching}

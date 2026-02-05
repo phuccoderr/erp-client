@@ -1,11 +1,7 @@
 import { PermissionApi } from "./permisson.api";
 import { TANSTACK_KEY_CONST } from "@constants";
 import { useQuery } from "@tanstack/react-query";
-import {
-  type ResponseFindAll,
-  type FindAllPermission,
-  type Permission,
-} from "@types";
+import type { ResponseFindAll, FindAllPermission, Permission } from "@types";
 
 const useQueryPermissions = (query: FindAllPermission) => {
   return useQuery<ResponseFindAll<Permission>>({

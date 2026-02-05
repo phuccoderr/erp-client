@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@headless-tree/core": "^1.6.2",
     "@headless-tree/react": "^1.6.2",
     "@hookform/resolvers": "^5.2.2",

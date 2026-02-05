@@ -11,5 +11,8 @@ export const TANSTACK_KEY_CONST = {
   QUERY_UNIT: "query_units",
   COMMAND_UNIT: "command_units",
 
+  QUERY_CATEGORY: "query_categories",
+  COMMAND_CATEGORY: "command_categories",
+
   QUERY_LANG: "query_langs",
 };

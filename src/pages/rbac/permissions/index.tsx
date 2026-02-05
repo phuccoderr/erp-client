@@ -12,10 +12,10 @@ import {
   createColumnHelper,
   type AccessorKeyColumnDef,
 } from "@tanstack/react-table";
-import {
-  type FindAllPermission,
-  type Permission,
-  type PermissionFieldSort,
+import type {
+  FindAllPermission,
+  Permission,
+  PermissionFieldSort,
 } from "@types";
 import {
   ArrowUpDown,
@@ -135,19 +135,19 @@ const PermissionsPage = () => {
       meta={data?.meta ?? { take: 0, page: 0, total: 0, total_pages: 0 }}
       pinning={["resource"]}
     >
-      <TanstackTableHeader title={t(LANG_KEY_CONST.PERMISSION)}>
-        <TanstackTableHeaderRight
-          csv={{
-            headers: csvHeaders,
-            filename: "permissions-2026.csv",
+      <TanstackTableHeader
+        title={t(LANG_KEY_CONST.PERMISSION)}
+        csv={{
+          headers: csvHeaders,
+          filename: "permissions-2026.csv",
 
-            fetchAllRecords: async () => {
-              const res = await PermissionApi.findAll({ pagination: false });
-              return res.data.entities;
-            },
-          }}
-        />
-      </TanstackTableHeader>
+          fetchAllRecords: async () => {
+            const res = await PermissionApi.findAll({ pagination: false });
+            return res.data.entities;
+          },
+        }}
+      />
+
       <TanstackTableContent>
         <TanstackTableFilter
           isFetching={isFetching}

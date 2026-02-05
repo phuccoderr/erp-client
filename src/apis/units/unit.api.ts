@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@constants";
 import http from "../http.api";
-import { type CreateUnit, type FindAllUnit, type UpdateUnit } from "@types";
+import type { CreateUnit, FindAllUnit, UpdateUnit } from "@types";
 
 const url = `${API_BASE_URL}/units`;
 

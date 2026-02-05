@@ -86,6 +86,7 @@ export const LANG_KEY_CONST = {
   MENU_DASHBOARD: "menu_dashboard",
   MENU_INVENTORY_MANAGEMENT: "menu_inventory_management",
   MENU_INVENTORY_MANAGEMENT_UNIT: "menu_inventory_management_unit",
+  MENU_INVENTORY_MANAGEMENT_CATEGORY: "menu_inventory_management_category",
 
   PERMISSION: "permission",
   LANG: "lang",

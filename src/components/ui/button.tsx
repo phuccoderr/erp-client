@@ -3,6 +3,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@lib";
+import { Spinner } from "./spinner";
+import { Typography } from "./typography";
 
 const buttonVariants = cva(
   "cursor-pointer " + // Con trỏ chuột thành hình bàn tay khi hover (cho biết có thể click)
@@ -60,10 +62,13 @@ function Button({
   variant = "default",
   size = "sm",
   asChild = false,
+  children,
+  isLoading,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    isLoading?: boolean;
   }) {
   const Comp = asChild ? Slot : "button";
 
@@ -72,9 +77,20 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(
+        buttonVariants({ variant, size: isLoading ? "sm" : size, className }),
+      )}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <div className="px-2 flex gap-1 items-center justify-center">
+          <Spinner />
+          <Typography>Processing...</Typography>
+        </div>
+      ) : (
+        children
+      )}
+    </Comp>
   );
 }
 export type CopyButtonProps = React.ComponentProps<"button"> &

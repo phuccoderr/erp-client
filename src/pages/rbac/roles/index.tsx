@@ -11,7 +11,6 @@ import {
 } from "@components/ui";
 import { LANG_KEY_CONST, TANSTACK_KEY_CONST } from "@constants";
 import { useLang } from "@hooks/use-lang";
-import { type RoleGroup } from "@types";
 import { queryClient, StringUtils } from "@utils";
 import { Pencil, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -20,6 +19,7 @@ import RoleCreateDialog from "./components/role-create-dialog.component";
 import { AlertDialogDelete } from "@components/ui";
 import { toast } from "sonner";
 import { useCommandDeleteRole, useQueryRoles } from "@apis/roles";
+import type { RoleGroup } from "@types";
 
 const RolesPage = () => {
   const { t } = useLang();
