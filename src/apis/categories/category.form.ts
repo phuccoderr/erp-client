@@ -27,6 +27,7 @@ const useFormCategory = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
+      parent_id: null,
     },
   });
 

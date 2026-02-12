@@ -6,8 +6,8 @@ import { CategoryApi } from "./category.api";
 const useCommandCreateCategory = () => {
   return useMutation({
     mutationKey: [TANSTACK_KEY_CONST.COMMAND_CATEGORY],
-    mutationFn: (body: CreateCategory) => {
-      return CategoryApi.create(body);
+    mutationFn: async (body: CreateCategory) => {
+      return (await CategoryApi.create(body)).data;
     },
   });
 };

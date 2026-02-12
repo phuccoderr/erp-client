@@ -76,24 +76,4 @@ export class DragAndDropUtils {
 
     return { depth, maxDepth, minDepth, parentId: getParentId() };
   }
-
-  static setProperty<T>(
-    items: TreeItem<T>[],
-    id: UniqueIdentifier,
-    property: T,
-    setter: (value: TreeItem<T>[]) => TreeItem<T>[],
-  ) {
-    for (const item of items) {
-      if (item.id === id) {
-        item[property] = setter(item[property]);
-        continue;
-      }
-
-      if (item.children.length) {
-        item.children = setProperty(item.children, id, property, setter);
-      }
-
-      return [...items];
-    }
-  }
 }

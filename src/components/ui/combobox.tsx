@@ -15,7 +15,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@components/ui";
-import { Controller } from "react-hook-form";
+import { Controller, type Path } from "react-hook-form";
 
 const Combobox = ComboboxPrimitive.Root;
 
@@ -135,7 +135,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
     <ComboboxPrimitive.List
       data-slot="combobox-list"
       className={cn(
-        "pointer-events-auto max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0",
+        "max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0",
         className,
       )}
       {...props}
@@ -295,19 +295,18 @@ function useComboboxAnchor() {
 }
 
 interface ComboboxSelectProps<T> {
-  name?: string;
+  name?: Path<T>;
   control?: any;
   label?: string;
   required?: boolean;
-
   items?: T[];
   keyValue?: keyof T;
   keyToString: keyof T;
   onValueChange?: (t: T | null) => void;
 }
 
-function ComboboxSelect<T>({
-  name = "",
+function ComboboxSelectTest<T>({
+  name,
   control,
   label,
   required,
@@ -316,51 +315,191 @@ function ComboboxSelect<T>({
   keyValue = "id" as keyof T,
   keyToString,
 }: ComboboxSelectProps<T>) {
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          {label && (
-            <FieldLabel htmlFor={label}>
-              {label}
-              {required && (
-                <span
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
-                  aria-hidden="true"
-                />
-              )}
-            </FieldLabel>
-          )}
-          <Combobox
-            items={items}
-            itemToStringLabel={(value: T) => String(value[keyToString])}
-            onValueChange={(value: T | null) => {
-              onValueChange?.(value);
-              const newFieldValue = value ? Number(value[keyValue]) : null;
-              field.onChange(newFieldValue);
-            }}
-          >
-            <ComboboxInput
-              placeholder="Select a parent"
-              aria-invalid={fieldState.invalid}
-            />
-            <ComboboxContent>
-              <ComboboxEmpty>No items found.</ComboboxEmpty>
-              <ComboboxList>
-                {(item) => (
-                  <ComboboxItem key={item.id} value={item}>
-                    {item.name}
-                  </ComboboxItem>
+  if (name && control) {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            {label && (
+              <FieldLabel htmlFor={label}>
+                {label}
+                {required && (
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+                    aria-hidden="true"
+                  />
                 )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
-    />
+              </FieldLabel>
+            )}
+            <Combobox
+              items={items}
+              itemToStringLabel={(value: T) => String(value[keyToString])}
+              onValueChange={(value: T | null) => {
+                const newFieldValue = value ? Number(value[keyValue]) : null;
+                field.onChange(newFieldValue);
+              }}
+            >
+              <ComboboxInput
+                placeholder="Select a parent"
+                aria-invalid={fieldState.invalid}
+              />
+              <ComboboxContent>
+                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                <ComboboxList>
+                  {(item) => (
+                    <ComboboxItem key={item.id} value={item}>
+                      {item.name}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+    );
+  }
+
+  return (
+    <Combobox
+      items={items}
+      itemToStringLabel={(value: T) => String(value[keyToString])}
+      onValueChange={(value: T | null) => {
+        onValueChange?.(value);
+      }}
+    >
+      <ComboboxInput placeholder="Select a parent" aria-invalid={"false"} />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.id} value={item}>
+              {item.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
+
+interface ComboboxSelectPopupProps<T> {
+  name?: Path<T>;
+  control?: any;
+  label?: string;
+  required?: boolean;
+  items?: T[];
+  keyValue?: keyof T;
+  keyToString: keyof T;
+  onValueChange?: (t: T | null) => void;
+}
+
+function ComboboxSelectPopupTesT<T>({
+  name,
+  control,
+  label,
+  required,
+  items = [],
+  onValueChange,
+  keyValue = "id" as keyof T,
+  keyToString,
+}: ComboboxSelectPopupProps<T>) {
+  if (name && control) {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            {label && (
+              <FieldLabel htmlFor={label}>
+                {label}
+                {required && (
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+                    aria-hidden="true"
+                  />
+                )}
+              </FieldLabel>
+            )}
+            <Combobox
+              modal={false}
+              items={items}
+              itemToStringLabel={(value: T) => String(value[keyToString])}
+              onValueChange={(value: T | null) => {
+                const newFieldValue = value ? Number(value[keyValue]) : null;
+                field.onChange(newFieldValue);
+              }}
+            >
+              <ComboboxTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    className="w-64 justify-between font-normal"
+                  >
+                    <ComboboxValue />
+                  </Button>
+                }
+              />
+
+              <ComboboxContent>
+                <ComboboxInput showTrigger={false} placeholder="Ok" />
+                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                <ComboboxList>
+                  {(item) => (
+                    <ComboboxItem key={item.id} value={item}>
+                      {item.name}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+    );
+  }
+
+  return (
+    <Combobox
+      items={items}
+      itemToStringLabel={(value: T) => String(value[keyToString])}
+      onValueChange={(value: T | null) => {
+        onValueChange?.(value);
+      }}
+    >
+      <ComboboxTrigger
+        render={
+          <Button
+            variant="outline"
+            className="w-full justify-between font-normal"
+          >
+            <ComboboxValue />
+          </Button>
+        }
+      />
+
+      <ComboboxContent>
+        <ComboboxInput
+          onFocus={(e) => e.preventDefault()}
+          showTrigger={true}
+          placeholder="Select a parent"
+          aria-invalid={"false"}
+        />
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.id} value={item}>
+              {item.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -381,5 +520,6 @@ export {
   ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,
-  ComboboxSelect,
+  ComboboxSelectTest,
+  ComboboxSelectPopupTesT,
 };

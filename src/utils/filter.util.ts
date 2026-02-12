@@ -2,7 +2,7 @@ export class FilterUtils {
   static getSortState(
     sort?: string,
     order?: string,
-    fieldLabels: Record<string, string> = {}
+    fieldLabels: Record<string, string> = {},
   ): string | null {
     if (!sort || !order) return null;
 

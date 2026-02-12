@@ -19,7 +19,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CategoryItem } from "./category-item";
+import { CategoryItem } from "./components/category-item";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrayUtils,
@@ -29,7 +29,10 @@ import {
 } from "@utils";
 import { useQueryCategories } from "@apis/categories/category.query";
 import type { Category, CategoryFieldSort, FindAllCategory } from "@types";
-import { useCommandUpdateCategory } from "@apis/categories/category.command";
+import {
+  useCommandDeleteCategory,
+  useCommandUpdateCategory,
+} from "@apis/categories/category.command";
 import { toast } from "sonner";
 import { LANG_KEY_CONST } from "@constants";
 import { ArrowUpDown } from "lucide-react";
@@ -37,33 +40,28 @@ import { useLang } from "@hooks/use-lang";
 import { WrapperFilter, WrapperHeader } from "@components/layouts";
 import { useFilterTable } from "@hooks/use-filter-table";
 import CategoryCreateDialog from "./components/category-create-dialog";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@components/ui/combobox";
+import CategoryUpdateDialog from "./components/category-update-dialog";
+import { AlertDialogDelete } from "@components/ui";
 
 const CategoriesPage = () => {
   const [offsetLeft, setOffsetLeft] = useState(0);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [items, setItems] = useState<ResultTreeItem<Category>[]>([]);
+
   const [openCreate, setOpenCreate] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [cateId, setCateId] = useState(0);
+  const [parentId, setParentId] = useState(0);
 
   const { mutate: updateCategory } = useCommandUpdateCategory();
+  const { mutate: deleteCategory } = useCommandDeleteCategory();
   const { t, data: langs } = useLang();
-  const { filters, setFilters, query, setQuery } =
+  const { filters, setFilters, query, setQuery, resetSort, sortOptions } =
     useFilterTable<FindAllCategory>();
 
   const { data: categories, isFetching, refetch } = useQueryCategories(query);
-  useEffect(() => {
-    if (categories) {
-      setItems(ArrayUtils.buildTreeWithDepth(categories.entities));
-    }
-  }, [categories]);
 
   const flattenedItems = useMemo(() => {
     const flatten = ArrayUtils.flattenTree(items);
@@ -76,27 +74,27 @@ const CategoriesPage = () => {
       flatten,
       activeId != null ? [activeId, ...collapsed] : collapsed,
     );
-  }, [items]);
+  }, [items, activeId]);
 
   const sortedIds = useMemo(
     () => flattenedItems.map(({ id }) => id),
     [flattenedItems],
   );
+  const activeItem = activeId
+    ? flattenedItems.find(({ id }) => id === activeId)
+    : null;
 
-  const fieldSorts: Record<CategoryFieldSort, string> = {
-    name: "name",
-    description: "description",
-    created_at: "created_at",
-  };
-
-  const primaryOptions = useMemo(
-    () =>
-      Object.entries(fieldSorts).map(([value, label]) => ({
-        value,
-        label,
-      })),
-    [langs],
-  );
+  const sortByOptions = useMemo(() => {
+    const fieldSorts: Record<CategoryFieldSort, string> = {
+      name: "name",
+      description: "description",
+      created_at: "created_at",
+    };
+    return Object.entries(fieldSorts).map(([value, label]) => ({
+      value,
+      label,
+    }));
+  }, [langs]);
 
   const projected =
     activeId && overId
@@ -116,9 +114,36 @@ const CategoriesPage = () => {
     }),
   );
 
-  const toggleOpenCreate = useCallback(() => {
+  const toggleOpenCreate = useCallback((cateId?: number) => {
+    if (cateId) {
+      setParentId(cateId);
+    }
     setOpenCreate(true);
   }, []);
+
+  const toggleOpenUpdate = useCallback((cateId: number) => {
+    setCateId(cateId);
+    setOpenUpdate(true);
+  }, []);
+
+  const toggleOpenDelete = useCallback((cateId: number) => {
+    setCateId(cateId);
+    setOpenDelete(true);
+  }, []);
+
+  const toggleActionDelete = useCallback(() => {
+    deleteCategory(cateId, {
+      onSuccess: () => {
+        const currentFlatten = ArrayUtils.flattenTree(items).filter(
+          (cate) => cate.id !== cateId,
+        );
+        const newTree = ArrayUtils.buildTreeWithDepth(currentFlatten);
+        setItems(newTree);
+        setOpenDelete(false);
+        toast.success(t(LANG_KEY_CONST.COMMON_DELETE_SUCCESS));
+      },
+    });
+  }, [cateId]);
 
   const handleApplySort = useCallback(() => {
     setQuery((prev) => ({
@@ -126,35 +151,81 @@ const CategoriesPage = () => {
       orderBy: filters.orderBy,
       order: filters.order,
     }));
-  }, [filters.orderBy, filters.order]);
+  }, [filters]);
 
-  function handleCollapsed(id: UniqueIdentifier) {
-    const collapsedItems = (
-      items: ResultTreeItem<Category>[],
-      id: UniqueIdentifier,
-    ): ResultTreeItem<Category>[] => {
-      return items.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            collapsed: !item.collapsed,
-          };
-        }
-        if (item.children?.length) {
-          const newChildren = collapsedItems(item.children, id);
+  const handleAddItems = useCallback(
+    (newCategory: Category) => {
+      const depthParent = ArrayUtils.flattenTree(items).find(
+        (cate) => cate.id === newCategory.parent_id,
+      )?.depth;
+      const newTreeItem: ResultTreeItem<Category> = {
+        ...newCategory,
+        id: newCategory.id,
+        name: newCategory.name,
+        children: [],
+        collapsed: false,
+        depth: depthParent ? depthParent + 1 : 0,
+        parent_id: newCategory.parent_id,
+      };
+      const currentFlatten = [...ArrayUtils.flattenTree(items), newTreeItem];
+      const newTree = ArrayUtils.buildTreeWithDepth(currentFlatten);
+      setItems(newTree);
+    },
+    [items],
+  );
 
-          if (newChildren !== item.children) {
+  const handleOrderBy = useCallback(
+    (value: string) => {
+      const orderBy = value as keyof Category;
+      setFilters((prev) => ({
+        ...prev,
+        orderBy,
+      }));
+    },
+    [filters],
+  );
+
+  const handleOrder = useCallback(
+    (value: string) => {
+      const order = value === "desc" ? "desc" : "asc";
+      setFilters((prev) => ({
+        ...prev,
+        order,
+      }));
+    },
+    [filters],
+  );
+
+  const handleCollapsed = useCallback(
+    (id: UniqueIdentifier) => {
+      const collapsedItems = (
+        items: ResultTreeItem<Category>[],
+        id: UniqueIdentifier,
+      ): ResultTreeItem<Category>[] => {
+        return items.map((item) => {
+          if (item.id === id) {
             return {
               ...item,
-              children: newChildren,
+              collapsed: !item.collapsed,
             };
           }
-        }
-        return item;
-      });
-    };
-    setItems(collapsedItems(items, id));
-  }
+          if (item.children?.length) {
+            const newChildren = collapsedItems(item.children, id);
+
+            if (newChildren !== item.children) {
+              return {
+                ...item,
+                children: newChildren,
+              };
+            }
+          }
+          return item;
+        });
+      };
+      setItems(collapsedItems(items, id));
+    },
+    [items],
+  );
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (projected && over) {
@@ -172,38 +243,11 @@ const CategoriesPage = () => {
 
       const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 
-      const root: ResultTreeItem<Category> = {
-        id: 0,
-        children: [],
-        collapsed: false,
-        depth: 0,
-        parent_id: 0,
-        created_at: "0",
-        description: "",
-        is_active: false,
-        name: "",
-        updated_at: "",
-      };
-      const nodes: Record<number, ResultTreeItem<Category>> = {
-        [root.id]: root,
-      };
-      const rebuilds = sortedItems.map((item) => ({ ...item, children: [] }));
-
-      for (const item of rebuilds) {
-        const { id, children, ...prop } = item;
-        const parentId = item.parent_id ?? root.id;
-        const parent =
-          nodes[parentId] ?? sortedItems.find(({ id }) => id === parentId);
-
-        nodes[id] = { id, children, ...prop };
-        parent.children.push(item);
-      }
-
-      setItems(root.children);
+      setItems(ArrayUtils.buildTreeWithDepth(sortedItems));
 
       const dataActive = active.data.current;
 
-      if (dataActive?.parentId !== parentId) {
+      if (dataActive?.parent_id !== parentId) {
         updateCategory(
           {
             id: Number(active.id),
@@ -239,34 +283,14 @@ const CategoriesPage = () => {
     document.body.style.setProperty("cursor", "grabbing");
   }
 
-  const parents = useMemo(
-    () => categories?.entities.map((cate) => cate.name),
-    [categories],
-  );
+  useEffect(() => {
+    if (categories) {
+      setItems(ArrayUtils.buildTreeWithDepth(categories.entities));
+    }
+  }, [categories]);
 
   return (
     <>
-      <Combobox items={parents}>
-        <ComboboxInput placeholder="Select a parent" />
-        <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <ComboboxList>
-            {(item) => {
-              return (
-                <ComboboxItem
-                  key={item}
-                  value={item}
-                  onSelect={(e) => {
-                    console.log(e);
-                  }}
-                >
-                  {item}
-                </ComboboxItem>
-              );
-            }}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
       <WrapperHeader
         title={t(LANG_KEY_CONST.CATEGORY)}
         titleAdd={t(LANG_KEY_CONST.CATEGORY_TITLE_ADD)}
@@ -282,47 +306,17 @@ const CategoriesPage = () => {
               type: "two-select",
               icon: <ArrowUpDown />,
               label: t(LANG_KEY_CONST.COMMON_SORT),
-              state: FilterUtils.getSortState(
-                query.orderBy,
-                query.order,
-                fieldSorts,
-              ),
+              state: FilterUtils.getSortState(query.orderBy, query.order),
               primaryValue: filters.orderBy,
               primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
-              primaryOptions: primaryOptions,
-              onPrimaryChange: (value) => {
-                const orderBy = value as keyof Category;
-                setFilters((prev) => ({
-                  ...prev,
-                  orderBy,
-                }));
-              },
+              primaryOptions: sortByOptions,
+              onPrimaryChange: handleOrderBy,
               secondaryValue: filters.order,
               secondaryPlaceholder: t(LANG_KEY_CONST.COMMON_ORDER),
-              secondaryOptions: [
-                { value: "asc", label: t(LANG_KEY_CONST.COMMON_ASC) },
-                { value: "desc", label: t(LANG_KEY_CONST.COMMON_DESC) },
-              ],
-              onSecondaryChange: (value) => {
-                const order = value === "desc" ? "desc" : "asc";
-                setFilters((prev) => ({
-                  ...prev,
-                  order,
-                }));
-              },
+              secondaryOptions: sortOptions,
+              onSecondaryChange: handleOrder,
               onApply: handleApplySort,
-              onClear: () => {
-                setFilters((prev) => ({
-                  ...prev,
-                  orderBy: undefined,
-                  order: undefined,
-                }));
-                setQuery((prev) => ({
-                  ...prev,
-                  orderBy: undefined,
-                  order: undefined,
-                }));
-              },
+              onClear: () => resetSort(),
             },
           ]}
         />
@@ -358,26 +352,52 @@ const CategoriesPage = () => {
                     key={id}
                     id={id}
                     parentId={parent_id}
-                    disabled={children.length > 0}
                     depth={
                       id === activeId && projected ? projected.depth : depth
                     }
-                    indentationWidth={24}
                     text={name}
                     active={is_active}
                     collapsed={Boolean(collapsed && children.length)}
                     onCollapsed={
                       children.length ? () => handleCollapsed(id) : undefined
                     }
+                    onOpenUpdate={toggleOpenUpdate}
+                    onOpenCreate={toggleOpenCreate}
+                    onOpenDelete={toggleOpenDelete}
                   />
                 ),
               )}
-              <DragOverlay></DragOverlay>
+              <DragOverlay>
+                {activeId && activeItem ? (
+                  <CategoryItem
+                    id={activeId}
+                    depth={activeItem.depth}
+                    clone
+                    parentId={null}
+                    text={activeItem.name}
+                  />
+                ) : null}
+              </DragOverlay>
             </SortableContext>
           </DndContext>
         </div>
       </div>
-      <CategoryCreateDialog isOpen={openCreate} onOpenChange={setOpenCreate} />
+      <CategoryCreateDialog
+        cateId={parentId}
+        isOpen={openCreate}
+        onOpenChange={setOpenCreate}
+        onNewData={handleAddItems}
+      />
+      <CategoryUpdateDialog
+        cateId={cateId}
+        isOpen={openUpdate}
+        onOpenChange={setOpenUpdate}
+      />
+      <AlertDialogDelete
+        open={openDelete}
+        onOpenChange={setOpenDelete}
+        toggleDelete={toggleActionDelete}
+      />
     </>
   );
 };

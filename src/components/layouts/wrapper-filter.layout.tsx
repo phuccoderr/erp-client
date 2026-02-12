@@ -249,7 +249,7 @@ const WrapperFilter = ({
         <Dialog>
           <DialogTrigger>
             <div className="relative inline-flex cursor-pointer">
-              <TextSearch className="text-foreground" size={20} />
+              <TextSearch size={20} />
               {length > 0 && (
                 <Badge
                   variant="default"

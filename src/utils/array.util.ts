@@ -17,7 +17,7 @@ export class ArrayUtils {
       return items.reduce<ResultTreeItem<T>[]>((acc, item, index) => {
         return [
           ...acc,
-          { ...item, parentId, depth, index },
+          { ...item, parent_id: parentId, depth, index },
           ...flatten(item.children, item.id, depth + 1),
         ];
       }, []);
@@ -29,11 +29,13 @@ export class ArrayUtils {
   static buildTreeWithDepth<T>(items: TreeItem<T>[]) {
     const itemMap = new Map<number, ResultTreeItem<T>>();
     items.forEach((item) => {
+      const existingCollapsed =
+        "collapsed" in item ? (item.collapsed as boolean) : true;
       itemMap.set(item.id, {
         ...item,
         children: [],
         depth: 0,
-        collapsed: false,
+        collapsed: existingCollapsed,
       });
     });
 

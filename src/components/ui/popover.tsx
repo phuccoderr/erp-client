@@ -60,7 +60,7 @@ function PopoverContent({
           // Ẩn outline khi focus (tránh viền focus mặc định của browser)
           "outline-hidden",
 
-          className
+          className,
         )}
         {...props}
       />

@@ -118,7 +118,9 @@ const WrapperHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
         {titleAdd && (
-          <Button onClick={onAdd}>+{t(LANG_KEY_CONST.UNIT_TITLE_ADD)}</Button>
+          <Button onClick={() => onAdd?.()}>
+            +{t(LANG_KEY_CONST.UNIT_TITLE_ADD)}
+          </Button>
         )}
       </div>
     </div>
