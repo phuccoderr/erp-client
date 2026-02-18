@@ -5,7 +5,7 @@ import { useLang } from "@hooks/use-lang";
 import { queryClient } from "@utils";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import RoleFormField from "./role-form-field.component";
+import RoleFormField from "./role-form-field";
 import { DialogForm } from "@components/layouts";
 import { useCommandUpdateRole, useFormRole, useQueryRole } from "@apis/roles";
 

@@ -8,7 +8,6 @@ import { cn } from "@lib";
 import {
   Dialog,
   DialogContainer,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLang } from "./use-lang";
 import { LANG_KEY_CONST } from "@constants";
 
@@ -41,5 +41,30 @@ export const useFilterTable = <T>() => {
     [langs],
   );
 
-  return { filters, setFilters, query, setQuery, resetSort, sortOptions };
+  const handleOrderBy = useCallback((value: string) => {
+    const orderBy = value as keyof T;
+    setFilters((prev) => ({
+      ...prev,
+      orderBy,
+    }));
+  }, []);
+
+  const handleOrder = useCallback((value: string) => {
+    const order = value === "desc" ? "desc" : "asc";
+    setFilters((prev) => ({
+      ...prev,
+      order,
+    }));
+  }, []);
+
+  return {
+    filters,
+    setFilters,
+    query,
+    setQuery,
+    resetSort,
+    sortOptions,
+    handleOrderBy,
+    handleOrder,
+  };
 };

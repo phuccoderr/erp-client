@@ -4,7 +4,7 @@ import { queryClient } from "@utils";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import type z from "zod";
-import UnitFormField from "./unit-form-field.component";
+import UnitFormField from "./unit-form-field";
 import { DialogContent } from "@components/ui";
 import { DialogForm } from "@components/layouts";
 import { useCommandUpdateUnit, useFormUnit, useQueryUnit } from "@apis/units";

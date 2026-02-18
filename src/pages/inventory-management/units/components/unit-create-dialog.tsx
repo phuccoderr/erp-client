@@ -5,7 +5,7 @@ import { useLang } from "@hooks/use-lang";
 import { queryClient } from "@utils";
 import { toast } from "sonner";
 import { z } from "zod";
-import UnitFormField from "./unit-form-field.component";
+import UnitFormField from "./unit-form-field";
 import { useCommandCreateUnit, useFormUnit } from "@apis/units";
 
 interface UnitCreateDialogProps {

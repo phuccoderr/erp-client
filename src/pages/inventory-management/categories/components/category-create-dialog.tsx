@@ -5,7 +5,7 @@ import { DialogContent } from "@components/ui";
 import { LANG_KEY_CONST } from "@constants";
 import { useLang } from "@hooks/use-lang";
 import { z } from "zod";
-import CategoryFormField from "./category-form-field.component";
+import CategoryFormField from "./category-form-field";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import type { Category } from "@types";

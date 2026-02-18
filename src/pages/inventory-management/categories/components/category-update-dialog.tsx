@@ -7,7 +7,7 @@ import { useLang } from "@hooks/use-lang";
 import { queryClient } from "@utils";
 import { useEffect } from "react";
 import { z } from "zod";
-import CategoryFormField from "./category-form-field.component";
+import CategoryFormField from "./category-form-field";
 import { toast } from "sonner";
 import { useQueryCategory } from "@apis/categories/category.query";
 

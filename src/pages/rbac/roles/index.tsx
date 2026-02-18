@@ -14,8 +14,8 @@ import { useLang } from "@hooks/use-lang";
 import { queryClient, StringUtils } from "@utils";
 import { Pencil, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
-import RoleUpdateDialog from "./components/role-update-dialog.component";
-import RoleCreateDialog from "./components/role-create-dialog.component";
+import RoleUpdateDialog from "./components/role-update-dialog";
+import RoleCreateDialog from "./components/role-create-dialog";
 import { AlertDialogDelete } from "@components/ui";
 import { toast } from "sonner";
 import { useCommandDeleteRole, useQueryRoles } from "@apis/roles";
@@ -30,21 +30,21 @@ const RolesPage = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const { mutate: mutateDeleteRole } = useCommandDeleteRole();
 
-  const toggleOpenUpdate = (roleId: number) => {
+  const toggleOpenUpdate = useCallback((roleId: number) => {
     setRoleId(roleId);
     setOpenUpdate(true);
-  };
+  }, []);
 
-  const toggleOpenCreate = () => {
+  const toggleOpenCreate = useCallback(() => {
     setOpenCreate(true);
-  };
+  }, []);
 
-  const toggleOpenDelete = (roleId: number) => {
+  const toggleOpenDelete = useCallback((roleId: number) => {
     setRoleId(roleId);
     setOpenDelete(true);
-  };
+  }, []);
 
-  const toggleActionDelete = () => {
+  const toggleActionDelete = useCallback(() => {
     mutateDeleteRole(roleId, {
       onSuccess: () => {
         setRoleId(0);
@@ -55,7 +55,7 @@ const RolesPage = () => {
         setOpenDelete(false);
       },
     });
-  };
+  }, [roleId]);
 
   const getRoleGroups = useCallback((role: any) => {
     const resourceMap = new Map<string, RoleGroup>();

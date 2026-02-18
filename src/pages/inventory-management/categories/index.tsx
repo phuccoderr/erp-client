@@ -41,7 +41,7 @@ import { WrapperFilter, WrapperHeader } from "@components/layouts";
 import { useFilterTable } from "@hooks/use-filter-table";
 import CategoryCreateDialog from "./components/category-create-dialog";
 import CategoryUpdateDialog from "./components/category-update-dialog";
-import { AlertDialogDelete } from "@components/ui";
+import { AlertDialogDelete, Skeleton } from "@components/ui";
 
 const CategoriesPage = () => {
   const [offsetLeft, setOffsetLeft] = useState(0);
@@ -316,70 +316,81 @@ const CategoriesPage = () => {
               secondaryOptions: sortOptions,
               onSecondaryChange: handleOrder,
               onApply: handleApplySort,
-              onClear: () => resetSort(),
+              onClear: resetSort,
             },
           ]}
         />
         <div className="py-2 px-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            measuring={{
-              droppable: {
-                strategy: MeasuringStrategy.Always,
-              },
-            }}
-            onDragStart={handleDragStart}
-            onDragMove={handleDragMove}
-            onDragEnd={handleDragEnd}
-            onDragOver={handleDragOver}
-          >
-            <SortableContext
-              items={sortedIds}
-              strategy={verticalListSortingStrategy}
+          {categories ? (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              measuring={{
+                droppable: {
+                  strategy: MeasuringStrategy.Always,
+                },
+              }}
+              onDragStart={handleDragStart}
+              onDragMove={handleDragMove}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
             >
-              {flattenedItems.map(
-                ({
-                  id,
-                  children,
-                  depth,
-                  name,
-                  parent_id,
-                  collapsed,
-                  is_active,
-                }) => (
-                  <CategoryItem
-                    key={id}
-                    id={id}
-                    parentId={parent_id}
-                    depth={
-                      id === activeId && projected ? projected.depth : depth
-                    }
-                    text={name}
-                    active={is_active}
-                    collapsed={Boolean(collapsed && children.length)}
-                    onCollapsed={
-                      children.length ? () => handleCollapsed(id) : undefined
-                    }
-                    onOpenUpdate={toggleOpenUpdate}
-                    onOpenCreate={toggleOpenCreate}
-                    onOpenDelete={toggleOpenDelete}
-                  />
-                ),
-              )}
-              <DragOverlay>
-                {activeId && activeItem ? (
-                  <CategoryItem
-                    id={activeId}
-                    depth={activeItem.depth}
-                    clone
-                    parentId={null}
-                    text={activeItem.name}
-                  />
-                ) : null}
-              </DragOverlay>
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={sortedIds}
+                strategy={verticalListSortingStrategy}
+              >
+                {flattenedItems.map(
+                  ({
+                    id,
+                    children,
+                    depth,
+                    name,
+                    parent_id,
+                    collapsed,
+                    is_active,
+                  }) => (
+                    <CategoryItem
+                      key={id}
+                      id={id}
+                      parentId={parent_id}
+                      depth={
+                        id === activeId && projected ? projected.depth : depth
+                      }
+                      text={name}
+                      active={is_active}
+                      collapsed={Boolean(collapsed && children.length)}
+                      onCollapsed={
+                        children.length ? () => handleCollapsed(id) : undefined
+                      }
+                      onOpenUpdate={toggleOpenUpdate}
+                      onOpenCreate={toggleOpenCreate}
+                      onOpenDelete={toggleOpenDelete}
+                    />
+                  ),
+                )}
+                <DragOverlay>
+                  {activeId && activeItem ? (
+                    <CategoryItem
+                      id={activeId}
+                      depth={activeItem.depth}
+                      clone
+                      parentId={null}
+                      text={activeItem.name}
+                    />
+                  ) : null}
+                </DragOverlay>
+              </SortableContext>
+            </DndContext>
+          ) : (
+            Array.from({ length: 15 }).map((_, index) => (
+              <div className="h-8 rounded-sm mt-px border flex items-center justify-center">
+                <Skeleton
+                  key={index}
+                  className="py-2 px-4 w-[98%] rounded-none"
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
       <CategoryCreateDialog

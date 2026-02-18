@@ -6,7 +6,6 @@ import {
   TanstackTableFilter,
   TanstackTableFooter,
   TanstackTableHeader,
-  TanstackTableHeaderRight,
 } from "@components/ui";
 import {
   createColumnHelper,
@@ -46,9 +45,17 @@ const ACTION_CONFIG: Record<
 };
 
 const PermissionsPage = () => {
-  const { t, data: dataLang } = useLang();
-  const { filters, setFilters, query, setQuery } =
-    useFilterTable<FindAllPermission>();
+  const { t, data: langs, lang } = useLang();
+  const {
+    filters,
+    setFilters,
+    query,
+    setQuery,
+    handleOrder,
+    handleOrderBy,
+    resetSort,
+    sortOptions,
+  } = useFilterTable<FindAllPermission>();
   const { data, isFetching, isLoading, refetch } = useQueryPermissions({
     page: query.page,
     take: query.take,
@@ -59,45 +66,55 @@ const PermissionsPage = () => {
   });
 
   const columnHelper = createColumnHelper<Permission>();
-  const columns: AccessorKeyColumnDef<Permission, string>[] = [
-    columnHelper.accessor("resource", {
-      header: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
-      enableHiding: false,
-    }),
-    columnHelper.accessor("action", {
-      header: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
+  const columns: AccessorKeyColumnDef<Permission, string>[] = useMemo(
+    () => [
+      columnHelper.accessor("resource", {
+        header: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
+        enableHiding: false,
+      }),
+      columnHelper.accessor("action", {
+        header: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
+        cell: ({ getValue }) => {
+          const value = getValue() as string;
+          const config = ACTION_CONFIG[value] ?? ACTION_CONFIG.get;
 
-        const Icon = config.icon;
+          const Icon = config.icon;
 
-        return (
-          <Badge variant={config.variant} className="rounded-sm">
-            <Icon className="h-3.5 w-3.5 mr-1" />
-            {value}
-          </Badge>
-        );
-      },
+          return (
+            <Badge variant={config.variant} className="rounded-sm">
+              <Icon className="h-3.5 w-3.5 mr-1" />
+              {value}
+            </Badge>
+          );
+        },
+      }),
+      columnHelper.accessor("description", {
+        header: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
+      }),
+      columnHelper.accessor("path", {
+        header: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
+      }),
+    ],
+    [langs, lang],
+  );
+  const csvHeaders = useMemo(
+    () =>
+      columns.map((col) => ({
+        label: col.header as string,
+        key: col.accessorKey as string,
+      })),
+    [],
+  );
+  const fieldSorts: Record<PermissionFieldSort, string> = useMemo(
+    () => ({
+      resource: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
+      description: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
+      path: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
+      action: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
+      created_at: t(LANG_KEY_CONST.COMMON_CREATED_AT),
     }),
-    columnHelper.accessor("description", {
-      header: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
-    }),
-    columnHelper.accessor("path", {
-      header: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
-    }),
-  ];
-  const csvHeaders = columns.map((col) => ({
-    label: col.header as string,
-    key: col.accessorKey as string,
-  }));
-  const fieldSorts: Record<PermissionFieldSort, string> = {
-    resource: t(LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE),
-    description: t(LANG_KEY_CONST.PERMISSION_FIELD_DESCRIPTION),
-    path: t(LANG_KEY_CONST.PERMISSION_FIELD_PATH),
-    action: t(LANG_KEY_CONST.PERMISSION_FIELD_ACTION),
-    created_at: t(LANG_KEY_CONST.COMMON_CREATED_AT),
-  };
+    [langs],
+  );
 
   const primaryOptions = useMemo(
     () =>
@@ -105,7 +122,7 @@ const PermissionsPage = () => {
         value,
         label,
       })),
-    [dataLang],
+    [langs],
   );
 
   const handlePageChange = useCallback((page: number) => {
@@ -120,12 +137,27 @@ const PermissionsPage = () => {
     }));
   }, [filters.orderBy, filters.order]);
 
+  const handleChangeResource = useCallback((resource: string) => {
+    setFilters((prev) => ({ ...prev, resource }));
+  }, []);
+
   const handleApplyResource = useCallback(() => {
     setQuery((prev) => ({
       ...prev,
       resource: filters.resource,
     }));
   }, [filters.resource]);
+
+  const handleClearResource = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      resource: undefined,
+    }));
+    setQuery((prev) => ({
+      ...prev,
+      resource: undefined,
+    }));
+  }, []);
 
   return (
     <TanstackTable
@@ -166,39 +198,13 @@ const PermissionsPage = () => {
               primaryValue: filters.orderBy,
               primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
               primaryOptions: primaryOptions,
-              onPrimaryChange: (value) => {
-                const orderBy = value as keyof Permission;
-                setFilters((prev) => ({
-                  ...prev,
-                  orderBy,
-                }));
-              },
+              onPrimaryChange: handleOrderBy,
               secondaryValue: filters.order,
               secondaryPlaceholder: t(LANG_KEY_CONST.COMMON_ORDER),
-              secondaryOptions: [
-                { value: "asc", label: t(LANG_KEY_CONST.COMMON_ASC) },
-                { value: "desc", label: t(LANG_KEY_CONST.COMMON_DESC) },
-              ],
-              onSecondaryChange: (value) => {
-                const order = value === "desc" ? "desc" : "asc";
-                setFilters((prev) => ({
-                  ...prev,
-                  order,
-                }));
-              },
+              secondaryOptions: sortOptions,
+              onSecondaryChange: handleOrder,
               onApply: handleApplySort,
-              onClear: () => {
-                setFilters((prev) => ({
-                  ...prev,
-                  orderBy: undefined,
-                  order: undefined,
-                }));
-                setQuery((prev) => ({
-                  ...prev,
-                  orderBy: undefined,
-                  order: undefined,
-                }));
-              },
+              onClear: resetSort,
             },
             {
               type: "input",
@@ -212,20 +218,9 @@ const PermissionsPage = () => {
               placeholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
                 LANG_KEY_CONST.PERMISSION_FIELD_RESOURCE,
               )}`,
-              onChange: (resource) => {
-                setFilters((prev) => ({ ...prev, resource }));
-              },
+              onChange: handleChangeResource,
               onApply: handleApplyResource,
-              onClear: () => {
-                setFilters((prev) => ({
-                  ...prev,
-                  resource: undefined,
-                }));
-                setQuery((prev) => ({
-                  ...prev,
-                  resource: undefined,
-                }));
-              },
+              onClear: handleClearResource,
             },
           ]}
         />

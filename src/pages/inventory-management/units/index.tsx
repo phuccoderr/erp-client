@@ -6,7 +6,6 @@ import {
   TanstackTableFilter,
   TanstackTableFooter,
   TanstackTableHeader,
-  TanstackTableHeaderRight,
 } from "@components/ui";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ArrowUpDown, FileSearchCorner, SquarePen, Trash2 } from "lucide-react";
@@ -14,25 +13,26 @@ import { useCallback, useMemo, useState } from "react";
 import { FilterUtils, queryClient, StringUtils } from "@utils";
 import { useLang } from "@hooks/use-lang";
 import { LANG_KEY_CONST, TANSTACK_KEY_CONST } from "@constants";
-import UnitUpdateDialog from "./components/unit-update-dialog.component";
-import UnitCreateDialog from "./components/unit-create-dialog.component";
+import UnitUpdateDialog from "./components/unit-update-dialog";
+import UnitCreateDialog from "./components/unit-create-dialog";
 import { UnitApi, useCommandDeleteUnit, useQueryUnits } from "@apis/units";
 import { toast } from "sonner";
 import { AlertDialogDelete } from "@components/ui/alert-dialog-delete";
 import type { FindAllUnit, Unit, UnitFieldSort } from "@types";
+import { useFilterTable } from "@hooks/use-filter-table";
 
 const UnitsPage = () => {
-  const { t, data: dataLang } = useLang();
-  const [filters, setFilters] = useState<FindAllUnit>({
-    page: 1,
-    take: 15,
-    pagination: true,
-  });
-  const [query, setQuery] = useState<FindAllUnit>({
-    page: 1,
-    take: 15,
-    pagination: true,
-  });
+  const { t, data: langs } = useLang();
+  const {
+    filters,
+    setFilters,
+    query,
+    setQuery,
+    resetSort,
+    sortOptions,
+    handleOrderBy,
+    handleOrder,
+  } = useFilterTable<FindAllUnit>();
   const { data, isFetching, isLoading, refetch } = useQueryUnits(query);
   const { mutate: mutateDeleteUnit } = useCommandDeleteUnit();
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -40,21 +40,21 @@ const UnitsPage = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [unitId, setUnitId] = useState(0);
 
-  const toggleOpenUpdate = (unitId: number) => {
+  const toggleOpenUpdate = useCallback((unitId: number) => {
     setUnitId(unitId);
     setOpenUpdate(true);
-  };
+  }, []);
 
-  const toggleOpenCreate = () => {
+  const toggleOpenCreate = useCallback(() => {
     setOpenCreate(true);
-  };
+  }, []);
 
-  const toggleOpenDelete = (roleId: number) => {
+  const toggleOpenDelete = useCallback((roleId: number) => {
     setUnitId(roleId);
     setOpenDelete(true);
-  };
+  }, []);
 
-  const toggleActionDelete = () => {
+  const toggleActionDelete = useCallback(() => {
     mutateDeleteUnit(unitId, {
       onSuccess: () => {
         setUnitId(0);
@@ -65,55 +65,64 @@ const UnitsPage = () => {
         setOpenDelete(false);
       },
     });
-  };
+  }, [unitId]);
 
   const columnHelper = createColumnHelper<Unit>();
-  const columns = [
-    columnHelper.accessor("name", {
-      header: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
-      enableHiding: false,
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
+        enableHiding: false,
+      }),
+      columnHelper.accessor("code", {
+        header: t(LANG_KEY_CONST.UNIT_FIELD_CODE),
+        enableHiding: false,
+      }),
+      columnHelper.accessor("description", {
+        header: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex gap-1 items-center">
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              onClick={() => toggleOpenUpdate(row.original.id)}
+            >
+              <SquarePen />
+            </Button>
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              onClick={() => toggleOpenDelete(row.original.id)}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [langs],
+  );
+  const csvHeaders = useMemo(
+    () => [
+      {
+        label: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
+        key: "name",
+      },
+    ],
+    [],
+  );
+  const fieldSorts: Record<UnitFieldSort, string> = useMemo(
+    () => ({
+      name: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
+      code: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
+      description: t(LANG_KEY_CONST.UNIT_FIELD_CODE),
     }),
-    columnHelper.accessor("code", {
-      header: t(LANG_KEY_CONST.UNIT_FIELD_CODE),
-      enableHiding: false,
-    }),
-    columnHelper.accessor("description", {
-      header: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
-    }),
-    columnHelper.display({
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex gap-1 items-center">
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            onClick={() => toggleOpenUpdate(row.original.id)}
-          >
-            <SquarePen />
-          </Button>
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            onClick={() => toggleOpenDelete(row.original.id)}
-          >
-            <Trash2 />
-          </Button>
-        </div>
-      ),
-    }),
-  ];
-  const csvHeaders = [
-    {
-      label: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
-      key: "name",
-    },
-  ];
-  const fieldSorts: Record<UnitFieldSort, string> = {
-    name: t(LANG_KEY_CONST.UNIT_FIELD_NAME),
-    code: t(LANG_KEY_CONST.UNIT_FIELD_DESCRIPTION),
-    description: t(LANG_KEY_CONST.UNIT_FIELD_CODE),
-  };
+    [],
+  );
 
   const primaryOptions = useMemo(
     () =>
@@ -121,12 +130,8 @@ const UnitsPage = () => {
         value,
         label,
       })),
-    [dataLang],
+    [langs],
   );
-
-  const handlePageChange = useCallback((page: number) => {
-    setQuery((prev) => ({ ...prev, page }));
-  }, []);
 
   const handleApplySort = useCallback(() => {
     setQuery((prev) => ({
@@ -134,7 +139,36 @@ const UnitsPage = () => {
       orderBy: filters.orderBy,
       order: filters.order,
     }));
-  }, [filters.orderBy, filters.order]);
+  }, [filters]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setQuery((prev) => ({ ...prev, page }));
+  }, []);
+
+  const handleApplyCode = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      code: filters.code,
+    }));
+  }, [filters.code]);
+
+  const handleClearCode = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      code: undefined,
+    }));
+    setQuery((prev) => ({
+      ...prev,
+      code: undefined,
+    }));
+  }, [filters]);
+
+  const handleChangeCode = useCallback(
+    (code: string) => {
+      setFilters((prev) => ({ ...prev, code }));
+    },
+    [filters],
+  );
 
   const handleApplyName = useCallback(() => {
     setQuery((prev) => ({
@@ -143,12 +177,23 @@ const UnitsPage = () => {
     }));
   }, [filters.name]);
 
-  const handleApplyCode = useCallback(() => {
+  const handleChangeName = useCallback(
+    (name: string) => {
+      setFilters((prev) => ({ ...prev, name }));
+    },
+    [filters],
+  );
+
+  const handleClearName = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      name: undefined,
+    }));
     setQuery((prev) => ({
       ...prev,
-      code: filters.code,
+      name: undefined,
     }));
-  }, [filters.code]);
+  }, [filters]);
 
   return (
     <>
@@ -172,7 +217,7 @@ const UnitsPage = () => {
               return res.data.entities;
             },
           }}
-        ></TanstackTableHeader>
+        />
         <TanstackTableContent>
           <TanstackTableFilter
             isFetching={isFetching}
@@ -191,39 +236,13 @@ const UnitsPage = () => {
                 primaryValue: filters.orderBy,
                 primaryPlaceholder: t(LANG_KEY_CONST.COMMON_FIELD),
                 primaryOptions: primaryOptions,
-                onPrimaryChange: (value) => {
-                  const orderBy = value as keyof Unit;
-                  setFilters((prev) => ({
-                    ...prev,
-                    orderBy,
-                  }));
-                },
+                onPrimaryChange: handleOrderBy,
                 secondaryValue: filters.order,
                 secondaryPlaceholder: t(LANG_KEY_CONST.COMMON_ORDER),
-                secondaryOptions: [
-                  { value: "asc", label: t(LANG_KEY_CONST.COMMON_ASC) },
-                  { value: "desc", label: t(LANG_KEY_CONST.COMMON_DESC) },
-                ],
-                onSecondaryChange: (value) => {
-                  const order = value === "desc" ? "desc" : "asc";
-                  setFilters((prev) => ({
-                    ...prev,
-                    order,
-                  }));
-                },
+                secondaryOptions: sortOptions,
+                onSecondaryChange: handleOrder,
                 onApply: handleApplySort,
-                onClear: () => {
-                  setFilters((prev) => ({
-                    ...prev,
-                    orderBy: undefined,
-                    order: undefined,
-                  }));
-                  setQuery((prev) => ({
-                    ...prev,
-                    orderBy: undefined,
-                    order: undefined,
-                  }));
-                },
+                onClear: resetSort,
               },
               {
                 type: "input",
@@ -237,20 +256,9 @@ const UnitsPage = () => {
                 placeholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
                   LANG_KEY_CONST.UNIT_FIELD_NAME,
                 )}`,
-                onChange: (name) => {
-                  setFilters((prev) => ({ ...prev, name }));
-                },
+                onChange: handleChangeName,
                 onApply: handleApplyName,
-                onClear: () => {
-                  setFilters((prev) => ({
-                    ...prev,
-                    name: undefined,
-                  }));
-                  setQuery((prev) => ({
-                    ...prev,
-                    name: undefined,
-                  }));
-                },
+                onClear: handleClearName,
               },
               {
                 type: "input",
@@ -264,20 +272,9 @@ const UnitsPage = () => {
                 placeholder: `${t(LANG_KEY_CONST.COMMON_SEARCH)} ${t(
                   LANG_KEY_CONST.UNIT_FIELD_CODE,
                 )}`,
-                onChange: (code) => {
-                  setFilters((prev) => ({ ...prev, code }));
-                },
+                onChange: handleChangeCode,
                 onApply: handleApplyCode,
-                onClear: () => {
-                  setFilters((prev) => ({
-                    ...prev,
-                    code: undefined,
-                  }));
-                  setQuery((prev) => ({
-                    ...prev,
-                    code: undefined,
-                  }));
-                },
+                onClear: handleClearCode,
               },
             ]}
           />
