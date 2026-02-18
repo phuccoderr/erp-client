@@ -383,7 +383,10 @@ const CategoriesPage = () => {
             </DndContext>
           ) : (
             Array.from({ length: 15 }).map((_, index) => (
-              <div className="h-8 rounded-sm mt-px border flex items-center justify-center">
+              <div
+                className="h-8 rounded-sm mt-px border flex items-center justify-center"
+                key={index}
+              >
                 <Skeleton
                   key={index}
                   className="py-2 px-4 w-[98%] rounded-none"

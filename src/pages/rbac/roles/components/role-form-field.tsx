@@ -17,7 +17,7 @@ import { useLang } from "@hooks/use-lang";
 import { StringUtils } from "@utils";
 import { Check, SearchIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import type { RoleGroup } from "@types";
+import type { RoleGroup } from "src/types";
 import { useQueryPermissions } from "@apis/permissions";
 
 interface RoleFormFieldProps {

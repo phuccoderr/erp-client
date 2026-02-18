@@ -37,7 +37,7 @@
       "@router": ["./src/router"],
       "@apis/*": ["./src/apis/*"],
       "@utils": ["./src/utils"],
-      "@types": ["src/@types"],
+      "@types": ["src/types"],
       "@lib": ["./src/lib"]
     }
   },

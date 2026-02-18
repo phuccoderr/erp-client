@@ -1,5 +1,5 @@
-import type { BaseQuery } from "./base-query";
-import type { Permission } from "./permission";
+import type { BaseQuery } from "./base-query.type";
+import { type Permission } from "./permission.type";
 
 export type Role = {
   id: number;

@@ -1,5 +1,5 @@
-import type { BaseEntity } from "./base-entity";
-import type { BaseQuery } from "./base-query";
+import type { BaseEntity } from "./base-entity.type";
+import type { BaseQuery } from "./base-query.type";
 
 export type Category = BaseEntity & {
   name: string;

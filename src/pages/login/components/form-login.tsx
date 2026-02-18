@@ -16,7 +16,7 @@ import { Card } from "@components/ui";
 import { useLang } from "@hooks";
 import { ButtonAnimated } from "@components/animations";
 import { toast } from "sonner";
-import type { ResponseERP } from "@types";
+import type { ResponseERP } from "src/types";
 import { CookieStorageUtil } from "@utils";
 import { useQueryUserGetMe } from "@apis/users";
 import { useCommandAuthLogin, useFormAuthLogin } from "@apis/auth";
